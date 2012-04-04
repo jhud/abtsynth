@@ -3,6 +3,8 @@
 
 #include <QGLWidget>
 
+class Skeleton;
+
 /**
  * A viewport onto a 3D space
  */
@@ -18,11 +20,17 @@ public:
 
     void paintGL();
 
+    void mouseMoveEvent(QMouseEvent *);
+
 signals:
     
 public slots:
+    void tick(void);
+
 private:
     double mAspectRatio;
+
+    Skeleton * mSkeleton;
 };
 
 #endif // GLVIEWWIDGET_H

@@ -1,10 +1,22 @@
 #include "glviewwidget.h"
+#include "skeleton.h"
+#include "bone.h"
 
+#include <QTimer>
 #include <GL/glu.h>
+#include <qevent.h>
 
 GlViewWidget::GlViewWidget(QWidget *parent) :
     QGLWidget(parent)
 {
+    mSkeleton = new Skeleton(this);
+    mSkeleton->resolve();
+
+    QTimer * timer;
+    timer = new QTimer(this);
+    timer->setSingleShot(false);
+    connect(timer, SIGNAL(timeout()), this, SLOT(tick()));
+    timer->start(100);
 }
 
 void GlViewWidget::initializeGL()
@@ -37,9 +49,33 @@ void GlViewWidget::paintGL()
     glClear( GL_COLOR_BUFFER_BIT );
     glColor3f( 1.0f, 0.0f, 0.0f );
 
-    glBegin(GL_LINES);
-    glVertex3f(0,0,-10);
-    glVertex3f(1,1,-20);
-    glEnd();
+    glPushMatrix();
+    glTranslatef(0,0,-5);
+    mSkeleton->render();
+    glPopMatrix();
+}
+
+void GlViewWidget::mouseMoveEvent(QMouseEvent * me)
+{
+    me->accept();
+
+    mSkeleton->mRoot->mPos[0].setX((float)me->x()/50.0f);
+
+    mSkeleton->mRoot->mPos[0].setY((float)me->y()/-50.0f);
+
+    mSkeleton->resolve();
+    updateGL();
+}
+
+void GlViewWidget::tick()
+{
+//    mSkeleton->applyForce(-0.05);
+
+//    QList<Bone*> bl;
+//    mSkeleton->separate(mSkeleton->mRoot, &bl);
+
+    mSkeleton->resolve();
+
+    updateGL();
 }
 

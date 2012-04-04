@@ -1,1 +1,3 @@
 *.pro.user
+*__Debug
+*__Release
