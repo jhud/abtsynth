@@ -4,16 +4,19 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui opengl
 
 TARGET = charabesque
 TEMPLATE = app
 
+LIBS += -lGLU
 
 SOURCES += src/main.cpp\
-        src/mainwindow.cpp
+        src/mainwindow.cpp \
+    src/glviewwidget.cpp
 
-HEADERS  += src/mainwindow.h
+HEADERS  += src/mainwindow.h \
+    src/glviewwidget.h
 
 FORMS    += \
     src/mainwindow.ui
