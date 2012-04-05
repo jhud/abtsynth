@@ -2,14 +2,24 @@
 #include "skeleton.h"
 #include "bone.h"
 
+#include <math.h>
 #include <QTimer>
 #include <GL/glu.h>
 #include <qevent.h>
+#include <QMessageBox>
+
+GLUquadricObj * qo;
 
 GlViewWidget::GlViewWidget(QWidget *parent) :
     QGLWidget(parent)
 {
+   qo = gluNewQuadric();
+
     mSkeleton = new Skeleton(this);
+    if (!mSkeleton->load("../charabesque/data/guy.xml")) {
+        new QMessageBox(QMessageBox::Critical, "Error", "Could not load skeleton.");
+    }
+    else {
     mSkeleton->resolve();
 
     QTimer * timer;
@@ -17,6 +27,7 @@ GlViewWidget::GlViewWidget(QWidget *parent) :
     timer->setSingleShot(false);
     connect(timer, SIGNAL(timeout()), this, SLOT(tick()));
     timer->start(100);
+    }
 }
 
 void GlViewWidget::initializeGL()
@@ -47,11 +58,24 @@ void GlViewWidget::resizeGL( int w, int h )
 void GlViewWidget::paintGL()
 {
     glClear( GL_COLOR_BUFFER_BIT );
-    glColor3f( 1.0f, 0.0f, 0.0f );
+    glColor3f( 1.0f, 1.0f, 1.0f );
 
     glPushMatrix();
-    glTranslatef(0,0,-5);
+    glTranslatef(0,0,-2);
+    static float xx; xx+= 0.01;
+    glRotatef(sin(xx)*30, 0, 1, 0);
+  //  glLineWidth(2.0);
     mSkeleton->render();
+
+    {
+        glColor3f( 1.0f, 1.0f, 1.0f );
+
+        glPushMatrix();
+        glTranslated(mSkeleton->mRoot->start().x(), mSkeleton->mRoot->start().y(), mSkeleton->mRoot->start().z());
+        gluSphere(qo, 0.15, 8, 8);
+        glPopMatrix();
+    }
+
     glPopMatrix();
 }
 
@@ -59,9 +83,11 @@ void GlViewWidget::mouseMoveEvent(QMouseEvent * me)
 {
     me->accept();
 
-    mSkeleton->mRoot->mPos[0].setX((float)me->x()/50.0f);
+    if (!mSkeleton || !mSkeleton->mRoot) {
+        return;
+    }
 
-    mSkeleton->mRoot->mPos[0].setY((float)me->y()/-50.0f);
+    mSkeleton->mRoot->setStart((float)me->x()/50.0f, (float)me->y()/-50.0f, 0);
 
     mSkeleton->resolve();
     updateGL();
@@ -74,7 +100,7 @@ void GlViewWidget::tick()
 //    QList<Bone*> bl;
 //    mSkeleton->separate(mSkeleton->mRoot, &bl);
 
-    mSkeleton->resolve();
+//    mSkeleton->resolve();
 
     updateGL();
 }

@@ -21,15 +21,17 @@ public:
 
     Bone * mRoot;
 
-    void separate(Bone * bone, QList<Bone*> * list);
+    bool load(const QString & filename);
 
 signals:
     
 public slots:
 
 private:
+    Bone *findBone(Bone * root, const QString &name);
     void renderBone(Bone * bone);
     bool resolveChildren(Bone * bone);
+    void linkJoints(Bone * bone);
     void applyForce(Bone * bone, double mss);
 };
 

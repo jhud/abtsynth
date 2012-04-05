@@ -4,49 +4,15 @@
 #include <GL/gl.h>
 #include <QDebug>
 #include <QList>
+#include <QDomDocument>
+#include <QFile>
 
 
 
 Skeleton::Skeleton(QObject *parent) :
     QObject(parent)
+  , mRoot(0)
 {
-    mRoot = new Bone(0);
-    mRoot->setLength(1.0f);
-
-    Bone * back = new Bone(mRoot);
-    back->setLength(1.0f);
-
-    Bone * leftThigh = new Bone(back);
-    Bone * leftShin = new Bone(leftThigh);
-
-    leftThigh->setLength(1.0f);
-    leftShin->setLength(1.0f);
-
-    Bone * rightThigh = new Bone(back);
-    rightThigh->mPos[1].setX(-1.0);
-    rightThigh->mPos[1].setY(1.0);
-    rightThigh->setLength(1.0f);
-
-    Bone * rightShin = new Bone(rightThigh);
-    rightShin->setLength(1.0f);
-
-
-    Bone * leftArm = new Bone(mRoot);
-    leftArm->setLength(0.5f);
-    leftArm->mPos[1].setX(-0.2);
-    leftArm->mPos[1].setY(-0.3);
-
-    Bone * leftForearm = new Bone(leftArm);
-    leftForearm->setLength(0.5f);
-
-    Bone * rightArm = new Bone(mRoot);
-    Bone * rightForearm = new Bone(rightArm);
-    rightForearm->mPos[1].setX(-1.0);
-    rightForearm->mPos[1].setY(-0.5);
-    rightArm->setLength(0.5f);
-    rightForearm->setLength(0.5f);
-
-
 }
 
 Skeleton::~Skeleton()
@@ -56,12 +22,21 @@ Skeleton::~Skeleton()
 
 void Skeleton::resolve()
 {
-    while (!resolveChildren(mRoot)) {
+    int numIterations=0;
+    while (!resolveChildren(mRoot) && numIterations < 1000) {
+        numIterations++;
+    }
+
+    if (numIterations == 1000) {
+        qDebug() << "Could not resolve skeleton.";
     }
 }
 
 void Skeleton::applyForce(double mss)
 {
+    if (!mRoot) {
+        return;
+    }
     foreach (QObject * obj, mRoot->children()) {
         Bone * childBone = (Bone*)obj;
 
@@ -71,6 +46,9 @@ void Skeleton::applyForce(double mss)
 
 void Skeleton::render()
 {
+    if (!mRoot) {
+        return;
+    }
     glBegin(GL_LINES);
 
     renderBone(mRoot);
@@ -78,28 +56,62 @@ void Skeleton::render()
     glEnd();
 }
 
-void Skeleton::separate(Bone *bone, QList<Bone *> * list)
+bool Skeleton::load(const QString &filename)
 {
-    list->append(bone);
+    QDomDocument doc( "Skeleton" );
+    QFile file( filename );
+    if( !file.open(QFile::ReadOnly ) ) {
+      return false;
+    }
+    if( !doc.setContent( &file ) )
+    {
+      file.close();
+      return false;
+    }
+    file.close();
 
-    foreach (QObject * obj, bone->children()) {
+    QDomElement root = doc.documentElement();
+    if( root.tagName() != "skeleton" ) {
+      return false;
+    }
+
+    QDomNode n = root.firstChild();
+    while( !n.isNull() )
+    {
+      QDomElement e = n.toElement();
+      if( !e.isNull() )
+      {
+        if( e.tagName() == "bone" )
+        {
+            mRoot = new Bone(0);
+            mRoot->parse(&n);
+        }
+      }
+
+      n = n.nextSibling();
+    }
+
+    linkJoints(mRoot);
+
+    return true;
+}
+
+Bone *Skeleton::findBone(Bone * root, const QString &name)
+{
+    if (name == root->name()) {
+        return root;
+    }
+
+    foreach (QObject * obj, root->children()) {
         Bone * childBone = (Bone*)obj;
 
-        separate(childBone, list);
-    }
-
-    foreach (Bone * val1, *list) {
-
-        foreach (Bone * val2, *list) {
-            if (val1 != val2 && val2!=mRoot) {
-                for (int i=0; i<2; i++) {
-                    QVector3D v = (val1->mPos[1]-val2->mPos[1]);
-                    v.normalize();
-                    val2->mPos[1] += v*0.07;
-                }
-            }
+        Bone * found = findBone(childBone, name);
+        if (found) {
+            return found;
         }
     }
+
+    return 0;
 }
 
 void Skeleton::renderBone(Bone *bone)
@@ -110,22 +122,25 @@ void Skeleton::renderBone(Bone *bone)
         renderBone(childBone);
     }
 
-    for (int i=0; i<2; i++) {
-        const QVector3D * pos = &bone->mPos[i];
-        glVertex3f(pos->x(), pos->y(), pos->z());
-    }
+    const QVector3D & pos = bone->start();
+    glVertex3f(pos.x(), pos.y(), pos.z());
+
+    const QVector3D & pos2 = bone->end();
+    glVertex3f(pos2.x(), pos2.y(), pos2.z());
 }
 
 
 
 bool Skeleton::resolveChildren(Bone *bone)
 {
-    bool isResolved = bone->resolve();
+    if (!mRoot) {
+        return true;
+    }
+
+    bool isResolved = bone->resolve();   
 
     foreach (QObject * obj, bone->children()) {
         Bone * childBone = (Bone*)obj;
-
-        childBone->mPos[0] = bone->mPos[1];
 
         isResolved = isResolved && resolveChildren(childBone);
     }
@@ -133,8 +148,35 @@ bool Skeleton::resolveChildren(Bone *bone)
     return isResolved;
 }
 
+void Skeleton::linkJoints(Bone *bone)
+{
+    if (!bone) {
+        return;
+    }
+
+    QString joinedTo(bone->joinedTo());
+    if (!joinedTo.isEmpty()) {
+        Bone * found = findBone(mRoot, joinedTo);
+        if (!found) {
+            qDebug() << "WARNING: bone" << joinedTo << "not found!";
+            return;
+        }
+        bone->setEnd(&found->start());
+    }
+
+    foreach (QObject * obj, bone->children()) {
+        Bone * childBone = (Bone*)obj;
+        childBone->setStart(&bone->end());
+        linkJoints(childBone);
+    }
+}
+
+
 void Skeleton::applyForce(Bone *bone, double mss)
 {
+    if (!mRoot) {
+        return;
+    }
     foreach (QObject * obj, bone->children()) {
         Bone * childBone = (Bone*)obj;
         applyForce(childBone, mss);
@@ -143,7 +185,7 @@ void Skeleton::applyForce(Bone *bone, double mss)
     bone->mVel[0].setY(mss);
     bone->mVel[1].setY(mss);
 
-    bone->mPos[0] += bone->mVel[0];
-    bone->mPos[1] += bone->mVel[1];
+    //bone->mPos[0] += bone->mVel[0];
+    //bone->mPos[1] += bone->mVel[1];
 }
 
