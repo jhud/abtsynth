@@ -77,12 +77,17 @@ void Bone::setEnd(QVector3D *link)
     mPos[1] = link;
 }
 
+float Bone::distanceFromPoint(const QVector3D *point)
+{
+    return point->distanceToLine(*mPos[0], *mPos[1]);
+}
+
 bool Bone::resolve()
 {
     QVector3D * s;
     QVector3D * e;
 
-    if (rand()&7) {
+    if (rand()&3) {
         s = mPos[0];
         e = mPos[1];
     }
@@ -99,11 +104,11 @@ bool Bone::resolve()
     double actualLength = diff.length();
     double lengthDiff = actualLength - mLength;
 
-    if (qAbs(lengthDiff) < 0.0025) {
+    if (qAbs(lengthDiff) < 0.01) {
         return true;
     }
 
-    *e = *s - diff.normalized() * (actualLength - lengthDiff*0.95);
+    *e = *s - diff.normalized() * (actualLength - lengthDiff*0.9);
 
     return false;
 }

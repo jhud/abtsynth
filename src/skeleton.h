@@ -5,6 +5,7 @@
 #include <QList>
 
 class Bone;
+class QVector3D;
 
 class Skeleton : public QObject
 {
@@ -20,14 +21,17 @@ public:
     void render();
 
     Bone * mRoot;
+    Bone * mSelected;
 
     bool load(const QString & filename);
 
+    bool selectBone(const QVector3D * pos);
 signals:
     
 public slots:
 
 private:
+    void findClosestBoneToPoint(Bone *root, const QVector3D *pos, float * dist, Bone ** closest);
     Bone *findBone(Bone * root, const QString &name);
     void renderBone(Bone * bone);
     bool resolveChildren(Bone * bone);

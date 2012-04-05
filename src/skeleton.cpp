@@ -96,6 +96,35 @@ bool Skeleton::load(const QString &filename)
     return true;
 }
 
+bool Skeleton::selectBone(const QVector3D *pos)
+{
+    float dist = 999.0f;
+    mSelected = 0;
+
+    findClosestBoneToPoint(mRoot, pos, &dist, &mSelected);
+
+    if (mSelected) {
+        return true;
+    }
+
+    return false;
+}
+
+void Skeleton::findClosestBoneToPoint(Bone * root, const QVector3D *pos, float * dist, Bone ** closest)
+{
+    float newDist = root->distanceFromPoint(pos);
+    if (newDist < *dist) {
+        *dist = newDist;
+        *closest = root;
+    }
+
+    foreach (QObject * obj, root->children()) {
+        Bone * childBone = (Bone*)obj;
+
+        findClosestBoneToPoint(childBone, pos, dist, closest);
+    }
+}
+
 Bone *Skeleton::findBone(Bone * root, const QString &name)
 {
     if (name == root->name()) {

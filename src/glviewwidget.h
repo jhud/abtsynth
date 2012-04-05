@@ -22,6 +22,10 @@ public:
 
     void mouseMoveEvent(QMouseEvent *);
 
+    void mouseDoubleClickEvent(QMouseEvent *);
+
+    void keyPressEvent(QKeyEvent *);
+
 signals:
     
 public slots:
@@ -29,6 +33,7 @@ public slots:
 
 private:
     double mAspectRatio;
+    QVector3D screenToWorld(int x, int y, bool ray);
 
     Skeleton * mSkeleton;
 };

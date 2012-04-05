@@ -27,6 +27,8 @@ public:
     QVector3D & end() { return *mPos[1];}
     void setEnd(QVector3D * link);
 
+    float distanceFromPoint(const QVector3D *point);
+
     bool resolve();
 
 signals:
