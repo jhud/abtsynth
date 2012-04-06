@@ -13,6 +13,9 @@ public:
     explicit Bone(QObject *parent = 0);
     
     void setLength(double length);
+    double length() { return mLength; }
+
+    double thicknessRatio() { return mThicknessRatio; }
 
     QString name() const { return mName; }
     QString joinedTo() const { return mJoinedTo; }
@@ -45,6 +48,7 @@ public slots:
     
 private:
     double mLength;
+    double mThicknessRatio;
     QString mName;
     QString mJoinedTo;
     bool mLinkedToOtherBone;

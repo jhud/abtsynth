@@ -26,3 +26,6 @@ HEADERS  += src/mainwindow.h \
 
 FORMS    += \
     src/mainwindow.ui
+
+OTHER_FILES += \
+    data/guy.xml

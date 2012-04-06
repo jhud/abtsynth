@@ -31,6 +31,12 @@ bool Bone::parse(QDomNode *node)
         setLength(1.0);
     }
 
+    val = elem.attribute("thickness", "0.1");
+    mThicknessRatio = val.toDouble(&ok);
+    if (ok == false) {
+        mThicknessRatio = 0.1;
+    }
+
     mName = elem.attribute("name", "unknown");
     mJoinedTo = elem.attribute("join", "");
 

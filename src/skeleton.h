@@ -3,9 +3,11 @@
 
 #include <QObject>
 #include <QList>
+#include <GL/glu.h>
 
 class Bone;
 class QVector3D;
+
 
 class Skeleton : public QObject
 {
@@ -34,6 +36,7 @@ private:
     void findClosestBoneToPoint(Bone *root, const QVector3D *pos, float * dist, Bone ** closest);
     Bone *findBone(Bone * root, const QString &name);
     void renderBone(Bone * bone);
+    void renderBoneVolume(Bone *bone, GLUquadricObj * obj);
     bool resolveChildren(Bone * bone);
     void linkJoints(Bone * bone);
     void applyForce(Bone * bone, double mss);

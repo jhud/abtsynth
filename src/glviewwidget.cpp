@@ -77,33 +77,16 @@ void GlViewWidget::paintGL()
     }
 
     glPushMatrix();
-    //    glTranslatef(0,0,-2);
     static float xx; xx+= 0.01;
-    //   glRotatef(sin(xx)*30, 0, 1, 0);
-    glLineWidth(2.0);
+  //     glRotatef(sin(xx)*30, 0, 1, 0);
+ //   glLineWidth(2.0);
     mSkeleton->render();
 
-    {
-        glColor3f( 1.0f, 1.0f, 1.0f );
-
-        glPushMatrix();
-        glTranslated(mSkeleton->mRoot->start().x(), mSkeleton->mRoot->start().y(), mSkeleton->mRoot->start().z());
-        gluSphere(qo, 0.15, 8, 8);
-        glPopMatrix();
-    }
     glPopMatrix();
-
-    {
-        glColor3f( 1.0f, 1.0f, 0.0f );
-
-        glPushMatrix();
-        glTranslated(pick.x(), pick.y(), pick.z());
-        gluSphere(qo, 0.05, 8, 8);
-        glPopMatrix();
-    }
 
     if (mSkeleton->mSelected)
     {
+         glDisable(GL_DEPTH_TEST);
         glColor3f( 0.0f, 1.0f, 0.0f );
 
         glPushMatrix();
@@ -119,6 +102,7 @@ void GlViewWidget::paintGL()
         glTranslated(boneEnd->x(), boneEnd->y(), boneEnd->z());
         gluSphere(qo, 0.02, 8, 8);
         glPopMatrix();
+            glEnable(GL_DEPTH_TEST);
     }
 }
 
