@@ -22,9 +22,11 @@ public:
 
     void mouseMoveEvent(QMouseEvent *);
 
-    void mouseDoubleClickEvent(QMouseEvent *);
+    void mousePressEvent(QMouseEvent *);
 
     void keyPressEvent(QKeyEvent *);
+
+    void setSelectBoneEnds(bool select) { mSelectBoneEnds = select; }
 
 signals:
     
@@ -33,9 +35,11 @@ public slots:
 
 private:
     double mAspectRatio;
-    QVector3D screenToWorld(int x, int y, bool ray);
+    QVector3D screenToWorld(int x, int y, float * normalizedZ);
+    QVector3D screenToWorldAlongPlane(int x, int y, float z);
 
     Skeleton * mSkeleton;
+    bool mSelectBoneEnds;
 };
 
 #endif // GLVIEWWIDGET_H

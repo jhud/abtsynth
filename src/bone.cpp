@@ -77,6 +77,13 @@ void Bone::setEnd(QVector3D *link)
     mPos[1] = link;
 }
 
+void Bone::setEnd(double x, double y, double z)
+{
+    mPos[1]->setX(x);
+    mPos[1]->setY(y);
+    mPos[1]->setZ(z);
+}
+
 float Bone::distanceFromPoint(const QVector3D *point)
 {
     return point->distanceToLine(*mPos[0], *mPos[1]);

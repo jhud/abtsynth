@@ -10,26 +10,28 @@
 
 GLUquadricObj * qo;
 QVector3D pick;
+float pickedZ;
 
 GlViewWidget::GlViewWidget(QWidget *parent) :
     QGLWidget(parent)
+  , mSelectBoneEnds(false)
 {
-   qo = gluNewQuadric();
+    qo = gluNewQuadric();
 
-   setFocus();
+    setFocus();
 
     mSkeleton = new Skeleton(this);
     if (!mSkeleton->load("../charabesque/data/guy.xml")) {
         new QMessageBox(QMessageBox::Critical, "Error", "Could not load skeleton.");
     }
     else {
-    mSkeleton->resolve();
+        mSkeleton->resolve();
 
-    QTimer * timer;
-    timer = new QTimer(this);
-    timer->setSingleShot(false);
-    connect(timer, SIGNAL(timeout()), this, SLOT(tick()));
-    timer->start(100);
+        QTimer * timer;
+        timer = new QTimer(this);
+        timer->setSingleShot(false);
+        connect(timer, SIGNAL(timeout()), this, SLOT(tick()));
+        timer->start(100);
     }
 }
 
@@ -66,9 +68,9 @@ void GlViewWidget::paintGL()
     glColor3f( 1.0f, 1.0f, 1.0f );
 
     glPushMatrix();
-//    glTranslatef(0,0,-2);
+    //    glTranslatef(0,0,-2);
     static float xx; xx+= 0.01;
- //   glRotatef(sin(xx)*30, 0, 1, 0);
+    //   glRotatef(sin(xx)*30, 0, 1, 0);
     glLineWidth(2.0);
     mSkeleton->render();
 
@@ -96,43 +98,63 @@ void GlViewWidget::paintGL()
         glColor3f( 0.0f, 1.0f, 0.0f );
 
         glPushMatrix();
-        glTranslated(mSkeleton->mSelected->start().x(), mSkeleton->mSelected->start().y(), mSkeleton->mSelected->start().z());
-        gluSphere(qo, 0.05, 8, 8);
+
+        QVector3D * boneEnd = 0;
+        if (mSelectBoneEnds == false) {
+            boneEnd = &mSkeleton->mSelected->start();
+        }
+        else {
+            boneEnd = &mSkeleton->mSelected->end();
+        }
+
+        glTranslated(boneEnd->x(), boneEnd->y(), boneEnd->z());
+        gluSphere(qo, 0.02, 8, 8);
         glPopMatrix();
     }
 }
 
 void GlViewWidget::mouseMoveEvent(QMouseEvent * me)
 {
-    me->accept();
+    if (me->buttons() & Qt::LeftButton)
+    {
+        me->accept();
 
-    if (!mSkeleton || !mSkeleton->mRoot) {
-        return;
-    }
+        if (!mSkeleton || !mSkeleton->mRoot) {
+            return;
+        }
 
-    QVector3D pick = screenToWorld(me->x(), me->y(), true);
+        QVector3D pick = screenToWorldAlongPlane(me->x(), me->y(), pickedZ);
 
-    if (mSkeleton->mSelected) {
-    mSkeleton->mSelected->setStart(pick.x(), pick.y(), 0);
+        if (mSkeleton->mSelected) {
+            if (mSelectBoneEnds == false) {
+                mSkeleton->mSelected->setStart(pick.x(), pick.y(), 0);
+            }
+            else {
+                mSkeleton->mSelected->setEnd(pick.x(), pick.y(), 0);
+            }
 
-    mSkeleton->resolve();
-    updateGL();
+            mSkeleton->resolve();
+            updateGL();
+        }
     }
 }
 
-void GlViewWidget::mouseDoubleClickEvent(QMouseEvent *me)
+void GlViewWidget::mousePressEvent(QMouseEvent *me)
 {
-    me->accept();
+    if (me->button() == Qt::RightButton)
+    {
+        me->accept();
 
-    if (!mSkeleton || !mSkeleton->mRoot) {
-        return;
+        if (!mSkeleton || !mSkeleton->mRoot) {
+            return;
+        }
+
+        pick = screenToWorld(me->x(), me->y(), &pickedZ);
+
+        mSkeleton->selectBone(&pick);
+
+        updateGL();
     }
-
-    pick = screenToWorld(me->x(), me->y(), false);
-
-    mSkeleton->selectBone(&pick);
-
-    updateGL();
 }
 
 void GlViewWidget::keyPressEvent(QKeyEvent *ke)
@@ -164,17 +186,17 @@ void GlViewWidget::keyPressEvent(QKeyEvent *ke)
 
 void GlViewWidget::tick()
 {
-//    mSkeleton->applyForce(-0.05);
+    //    mSkeleton->applyForce(-0.05);
 
-//    QList<Bone*> bl;
-//    mSkeleton->separate(mSkeleton->mRoot, &bl);
+    //    QList<Bone*> bl;
+    //    mSkeleton->separate(mSkeleton->mRoot, &bl);
 
-//    mSkeleton->resolve();
+    //    mSkeleton->resolve();
 
     updateGL();
 }
 
-QVector3D GlViewWidget::screenToWorld(int x, int y, bool ray)
+QVector3D GlViewWidget::screenToWorld(int x, int y, float * normalizedZ)
 {
     GLint viewport[4];
     GLdouble modelview[16];
@@ -190,8 +212,33 @@ QVector3D GlViewWidget::screenToWorld(int x, int y, bool ray)
     winY = (float)viewport[3] - (float)y;
     glReadPixels( x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
 
-    gluUnProject( winX, winY, ray?0.85 : winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+    gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+
+    if(normalizedZ) {
+        *normalizedZ = winZ;
+    }
 
     return QVector3D(posX, posY, posZ);
 }
 
+QVector3D GlViewWidget::screenToWorldAlongPlane(int x, int y, float z)
+{
+    GLint viewport[4];
+    GLdouble modelview[16];
+    GLdouble projection[16];
+    GLfloat winX, winY;
+    GLdouble posX, posY, posZ;
+
+    Q_ASSERT(qBound(0.0f, z, 1.0f) == z);
+
+    glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+    glGetDoublev( GL_PROJECTION_MATRIX, projection );
+    glGetIntegerv( GL_VIEWPORT, viewport );
+
+    winX = (float)x;
+    winY = (float)viewport[3] - (float)y;
+
+    gluUnProject( winX, winY, z, modelview, projection, viewport, &posX, &posY, &posZ);
+
+    return QVector3D(posX, posY, posZ);
+}

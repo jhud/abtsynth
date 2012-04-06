@@ -9,13 +9,18 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    GlViewWidget * vw = new GlViewWidget(ui->centralWidget);
-    vw->setGeometry(0,0,640,480);
+    mViewWidget = new GlViewWidget(ui->centralWidget);
+    mViewWidget->setGeometry(0,0,640,480);
 
-    vw->updateGL();
+    mViewWidget->updateGL();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::on_actionSelect_ends_triggered(bool checked)
+{
+    mViewWidget->setSelectBoneEnds(checked);
 }
