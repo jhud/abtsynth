@@ -17,13 +17,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     
+    static MainWindow & get();
+
+    void setStatusText(const QString & text);
+
 private slots:
     void on_actionSelect_ends_triggered(bool checked);
 
 private:
     Ui::MainWindow *ui;
-    GlViewWidget *mViewWidget;
-
 };
 
 #endif // MAINWINDOW_H

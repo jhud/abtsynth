@@ -3,16 +3,18 @@
 
 #include "glviewwidget.h"
 
+#include <QDebug>
+
+MainWindow * gMW=0;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    Q_ASSERT(!gMW);
+    gMW = this;
+
     ui->setupUi(this);
-
-    mViewWidget = new GlViewWidget(ui->centralWidget);
-    mViewWidget->setGeometry(0,0,640,480);
-
-    mViewWidget->updateGL();
 }
 
 MainWindow::~MainWindow()
@@ -20,7 +22,20 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+
+MainWindow & MainWindow::get()
+{
+    Q_ASSERT(gMW);
+    return *gMW;
+}
+
+
+void MainWindow::setStatusText(const QString & text)
+{
+    ui->statusBar->showMessage(text);
+}
+
 void MainWindow::on_actionSelect_ends_triggered(bool checked)
 {
-    mViewWidget->setSelectBoneEnds(checked);
+    ui->glViewContainer->setSelectBoneEnds(checked);
 }

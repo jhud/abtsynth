@@ -1,7 +1,9 @@
 #include "glviewwidget.h"
 #include "skeleton.h"
 #include "bone.h"
+#include "mainwindow.h"
 
+#include <QDebug>
 #include <math.h>
 #include <QTimer>
 #include <GL/glu.h>
@@ -43,6 +45,7 @@ void GlViewWidget::initializeGL()
 
 void GlViewWidget::resizeGL( int w, int h )
 {
+    qDebug() << "Viewport resized to " << w << "x" << h;
     if ( h == 0 )
         h = 1;
 
@@ -60,12 +63,18 @@ void GlViewWidget::resizeGL( int w, int h )
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
     glTranslated(0,0,-2);
+
+    updateGL();
 }
 
 void GlViewWidget::paintGL()
 {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3f( 1.0f, 1.0f, 1.0f );
+
+    if (!mSkeleton) {
+        return;
+    }
 
     glPushMatrix();
     //    glTranslatef(0,0,-2);
@@ -153,13 +162,17 @@ void GlViewWidget::mousePressEvent(QMouseEvent *me)
 
         mSkeleton->selectBone(&pick);
 
-        updateGL();
+        if (mSkeleton->mSelected) {
+            MainWindow::get().setStatusText(mSkeleton->mSelected->name());
+
+            updateGL();
+        }
     }
 }
 
 void GlViewWidget::keyPressEvent(QKeyEvent *ke)
 {
-    QVector3D & pos = mSkeleton->mSelected->start();
+    QVector3D & pos = (mSelectBoneEnds) ? mSkeleton->mSelected->end() : mSkeleton->mSelected->start();
 
     switch(ke->key()) {
     case Qt::Key_Left:

@@ -11,6 +11,8 @@ TEMPLATE = app
 
 LIBS += -lGLU
 
+INCLUDEPATH += src
+
 SOURCES += src/main.cpp\
         src/mainwindow.cpp \
     src/glviewwidget.cpp \

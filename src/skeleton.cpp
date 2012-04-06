@@ -9,9 +9,10 @@
 
 
 
-Skeleton::Skeleton(QObject *parent) :
-    QObject(parent)
+Skeleton::Skeleton(QObject *parent)
+  : QObject(parent)
   , mRoot(0)
+  , mSelected(0)
 {
 }
 
