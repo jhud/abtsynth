@@ -1,9 +1,10 @@
 #ifndef GLVIEWWIDGET_H
 #define GLVIEWWIDGET_H
 
+#include "skeleton.h"
+
 #include <QGLWidget>
 
-class Skeleton;
 
 /**
  * A viewport onto a 3D space
@@ -12,6 +13,12 @@ class GlViewWidget : public QGLWidget
 {
     Q_OBJECT
 public:
+    enum CameraState {
+        CameraFront,
+        CameraSide,
+        CameraAbove
+    };
+
     explicit GlViewWidget(QWidget *parent = 0);
     
     void initializeGL();
@@ -27,6 +34,10 @@ public:
     void keyPressEvent(QKeyEvent *);
 
     void setSelectBoneEnds(bool select) { mSelectBoneEnds = select; }
+
+    void setCamera(CameraState state);
+
+    void setRenderMode(Skeleton::RenderMode rm);
 
 signals:
     

@@ -14,6 +14,7 @@ Skeleton::Skeleton(QObject *parent)
   : QObject(parent)
   , mRoot(0)
   , mSelected(0)
+  , mRenderMode(RenderSolid)
 {
 }
 
@@ -52,7 +53,7 @@ void Skeleton::render()
         return;
     }
 
-    if (true) {
+    if (mRenderMode == RenderSolid) {
         GLUquadricObj * obj = gluNewQuadric();
         renderBoneVolume(mRoot, obj);
         gluDeleteQuadric(obj);

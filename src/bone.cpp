@@ -121,7 +121,7 @@ bool Bone::resolve()
         return true;
     }
 
-    *e = *s - diff.normalized() * (actualLength - lengthDiff*0.9);
+    *e = *s - diff.normalized() * (actualLength - lengthDiff*0.95);
 
     return false;
 }

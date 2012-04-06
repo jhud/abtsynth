@@ -24,6 +24,16 @@ public:
 private slots:
     void on_actionSelect_ends_triggered(bool checked);
 
+    void on_actionFrontCamera_triggered();
+
+    void on_actionSideCamera_triggered();
+
+    void on_actionAboveCamera_triggered();
+
+    void on_actionRenderSolid_triggered();
+
+    void on_actionRenderStickman_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -28,7 +28,7 @@
               </bone>
             </bone>				      
           </bone>
-          <bone length="0.18" name="rhip" thickness="0.5">
+          <bone length="0.26" name="hip" thickness="0.5">
             <bone length="0.42" name="rightThigh" thickness="0.4">
                           <bone length="0.42" name="rightShin" thickness="0.3">
                             <bone length="0.15" name="rightFoot" thickness="0.5">
@@ -37,7 +37,7 @@
                 </bone>
 				      </bone>
             </bone>
-            <bone length="0.26" name="hip" join="lhip" thickness="0.5">
+            <bone length="0.18" name="rhip" join="lhip" thickness="0.5">
             </bone>  
           </bone>
         </bone>

@@ -120,10 +120,10 @@ void GlViewWidget::mouseMoveEvent(QMouseEvent * me)
 
         if (mSkeleton->mSelected) {
             if (mSelectBoneEnds == false) {
-                mSkeleton->mSelected->setStart(pick.x(), pick.y(), 0);
+                mSkeleton->mSelected->setStart(pick.x(), pick.y(), pick.z());
             }
             else {
-                mSkeleton->mSelected->setEnd(pick.x(), pick.y(), 0);
+                mSkeleton->mSelected->setEnd(pick.x(), pick.y(), pick.z());
             }
 
             mSkeleton->resolve();
@@ -178,6 +178,31 @@ void GlViewWidget::keyPressEvent(QKeyEvent *ke)
     }
 
     mSkeleton->resolve();
+    updateGL();
+}
+
+void GlViewWidget::setCamera(GlViewWidget::CameraState state)
+{
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+        glTranslated(0,0,-2);
+    switch(state) {
+    case CameraFront:
+        break;
+
+    case CameraSide:
+        glRotatef(90,0,1,0);
+        break;
+
+    case CameraAbove:
+        glRotatef(90,1,0,0);
+        break;
+    }
+}
+
+void GlViewWidget::setRenderMode(Skeleton::RenderMode rm)
+{
+    mSkeleton->setRenderMode(rm);
     updateGL();
 }
 

@@ -13,6 +13,11 @@ class Skeleton : public QObject
 {
     Q_OBJECT
 public:
+    enum RenderMode {
+        RenderSolid,
+        RenderStickman
+    };
+
     explicit Skeleton(QObject *parent = 0);
     virtual ~Skeleton();
     
@@ -28,6 +33,8 @@ public:
     bool load(const QString & filename);
 
     bool selectBone(const QVector3D * pos);
+
+    void setRenderMode(RenderMode r) { mRenderMode = r; }
 signals:
     
 public slots:
@@ -40,6 +47,8 @@ private:
     bool resolveChildren(Bone * bone);
     void linkJoints(Bone * bone);
     void applyForce(Bone * bone, double mss);
+
+    RenderMode mRenderMode;
 };
 
 #endif // SKELETON_H
