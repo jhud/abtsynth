@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QVector3D>
 
+#include "capsule.h"
+
 class QDomNode;
 
 class Bone : public QObject
@@ -22,8 +24,6 @@ public:
 
     bool parse(QDomNode * node);
 
-    QVector3D mVel[2];
-
     /**
      * Replace start of bone with a new reference. Old instance is destroyed if the bone owned it.
      */
@@ -41,6 +41,8 @@ public:
     float distanceFromPoint(const QVector3D *point);
 
     bool resolve();
+
+    Capsule toCapsule();
 
 signals:
     

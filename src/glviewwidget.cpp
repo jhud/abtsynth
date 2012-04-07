@@ -2,6 +2,8 @@
 #include "skeleton.h"
 #include "bone.h"
 #include "mainwindow.h"
+#include "common.h"
+#include "maths.h"
 
 #include <QDebug>
 #include <math.h>
@@ -33,7 +35,11 @@ GlViewWidget::GlViewWidget(QWidget *parent) :
         timer = new QTimer(this);
         timer->setSingleShot(false);
         connect(timer, SIGNAL(timeout()), this, SLOT(tick()));
-        timer->start(100);
+        timer->start(50);
+
+        for (int i=0; i<1000; i++) {
+            addSpark();
+        }
     }
 }
 
@@ -41,6 +47,7 @@ void GlViewWidget::initializeGL()
 {
     glClearColor( 0.0f, 0.0f, 0.5f, 1.0f );
     glEnable(GL_DEPTH_TEST);
+    glPointSize(0.5f);
 }
 
 void GlViewWidget::resizeGL( int w, int h )
@@ -69,8 +76,10 @@ void GlViewWidget::resizeGL( int w, int h )
 
 void GlViewWidget::paintGL()
 {
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glColor3f( 1.0f, 1.0f, 1.0f );
+    if (mRenderMode != Skeleton::RenderFinal) {
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glColor3f( 1.0f, 1.0f, 1.0f );
+    }
 
     if (!mSkeleton) {
         return;
@@ -78,15 +87,15 @@ void GlViewWidget::paintGL()
 
     glPushMatrix();
     static float xx; xx+= 0.01;
-  //     glRotatef(sin(xx)*30, 0, 1, 0);
- //   glLineWidth(2.0);
-    mSkeleton->render();
+    //     glRotatef(sin(xx)*30, 0, 1, 0);
+    //   glLineWidth(2.0);
+    mSkeleton->render(mRenderMode);
 
     glPopMatrix();
 
-    if (mSkeleton->mSelected)
+    if (mSkeleton->mSelected && mRenderMode != Skeleton::RenderFinal)
     {
-         glDisable(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
         glColor3f( 0.0f, 1.0f, 0.0f );
 
         glPushMatrix();
@@ -102,8 +111,19 @@ void GlViewWidget::paintGL()
         glTranslated(boneEnd->x(), boneEnd->y(), boneEnd->z());
         gluSphere(qo, 0.02, 8, 8);
         glPopMatrix();
-            glEnable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
     }
+
+
+    glDisable(GL_DEPTH_TEST);
+    glColor3ub(1, 1, 1 );
+    glBegin(GL_POINTS);
+    foreach (Spark * spark, mSparks) {
+        glVertex3d(spark->mPos.x(), spark->mPos.y(), spark->mPos.z());
+    }
+    glEnd();
+    glEnable(GL_DEPTH_TEST);
+
 }
 
 void GlViewWidget::mouseMoveEvent(QMouseEvent * me)
@@ -185,7 +205,7 @@ void GlViewWidget::setCamera(GlViewWidget::CameraState state)
 {
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
-        glTranslated(0,0,-2);
+    glTranslated(0,0,-2);
     switch(state) {
     case CameraFront:
         break;
@@ -202,12 +222,96 @@ void GlViewWidget::setCamera(GlViewWidget::CameraState state)
 
 void GlViewWidget::setRenderMode(Skeleton::RenderMode rm)
 {
-    mSkeleton->setRenderMode(rm);
+    mRenderMode = rm;
+
+    if (mRenderMode == Skeleton::RenderFinal) {
+        glClearColor(0,0,0,1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glBlendFunc(GL_ONE, GL_ONE);
+        glEnable(GL_BLEND);
+    }
+    else {
+        glDisable(GL_BLEND);
+    }
+
     updateGL();
+}
+
+void GlViewWidget::addSpark()
+{
+    Spark * s = new Spark();
+    // s->mPos = mSkeleton->mRoot->start();
+    s->mPos = QVector3D(RandFloatNeg(), RandFloatNeg(), RandFloatNeg());
+
+    mSparks.append(s);
+}
+
+void GlViewWidget::updateSparks()
+{
+    QList<Capsule> cl = mSkeleton->toCapsuleList(mSkeleton->mRoot);
+
+    const double noise = MainWindow::get().noise();
+
+    foreach (Spark* sp, mSparks) {
+        sp->mPos += QVector3D(RandFloatNeg()*noise, RandFloatNeg()*noise, RandFloatNeg()*noise);
+
+        const Capsule * closest = 0;
+        float minDist = 9999.0f;
+        float lowest = 100;
+        float highest = -100;
+        foreach (const Capsule & c, cl) {
+            float dist = c.distanceFrom(sp->mPos);
+            if (dist < minDist) {
+                minDist = dist;
+                closest = &c;
+            }
+
+            if (c.mStart.y() < lowest)
+            {
+                lowest = c.mStart.y();
+            }
+
+            if (c.mStart.y() > highest)
+            {
+                highest = c.mStart.y();
+            }
+        }
+
+        const Capsule * target = closest;
+    //    Capsule * target = &cl[(int(sp)/4)%cl.count()];
+
+        {
+            QVector3D capsuleCentre = Maths::closestPointOnSegment(sp->mPos, target->mStart, target->mEnd);
+
+            if (minDist > 0) {
+                sp->mPos += (capsuleCentre-sp->mPos).normalized() * 0.01f;
+            }
+            else
+            {
+                sp->mPos += (capsuleCentre-sp->mPos).normalized()*-0.002f ;
+            }
+
+            {
+                sp->mPos.setY(sp->mPos.y() - MainWindow::get().gravity());
+            }
+        }
+
+        if (sp->mPos.y() < lowest-1.0) {
+            sp->mPos.setX(sp->mPos.x() + RandFloatNeg()*0.5);
+            sp->mPos.setY(highest+0.8);
+        }
+
+
+        if (sp->mPos.y() > highest+1.0) {
+            sp->mPos.setX(sp->mPos.x() + RandFloatNeg()*0.5);
+            sp->mPos.setY(lowest-0.8);
+        }
+    }
 }
 
 void GlViewWidget::tick()
 {
+    updateSparks();
     //    mSkeleton->applyForce(-0.05);
 
     //    QList<Bone*> bl;

@@ -34,6 +34,13 @@ private slots:
 
     void on_actionRenderStickman_triggered();
 
+    void on_actionRender_triggered();
+
+public:
+    float gravity();
+
+    float noise();
+
 private:
     Ui::MainWindow *ui;
 };

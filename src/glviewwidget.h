@@ -2,8 +2,10 @@
 #define GLVIEWWIDGET_H
 
 #include "skeleton.h"
+#include "spark.h"
 
 #include <QGLWidget>
+#include <QList>
 
 
 /**
@@ -39,6 +41,10 @@ public:
 
     void setRenderMode(Skeleton::RenderMode rm);
 
+    void addSpark();
+
+    void updateSparks();
+
 signals:
     
 public slots:
@@ -50,7 +56,10 @@ private:
     QVector3D screenToWorldAlongPlane(int x, int y, float z);
 
     Skeleton * mSkeleton;
+    Skeleton::RenderMode mRenderMode;
     bool mSelectBoneEnds;
+
+    QList<Spark*> mSparks;
 };
 
 #endif // GLVIEWWIDGET_H

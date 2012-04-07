@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += testlib gui
+QT       += testlib gui xml
 
 TARGET = tst_test_bone
 CONFIG   += console
@@ -14,7 +14,9 @@ TEMPLATE = app
 
 
 SOURCES += tst_test_bone.cpp \
-    ../../bone.cpp
+    ../../bone.cpp \
+    ../../capsule.cpp \
+../../maths.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 HEADERS += \

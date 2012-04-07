@@ -5,6 +5,8 @@
 #include <QList>
 #include <GL/glu.h>
 
+#include "capsule.h"
+
 class Bone;
 class QVector3D;
 
@@ -15,7 +17,8 @@ class Skeleton : public QObject
 public:
     enum RenderMode {
         RenderSolid,
-        RenderStickman
+        RenderStickman,
+        RenderFinal
     };
 
     explicit Skeleton(QObject *parent = 0);
@@ -23,9 +26,9 @@ public:
     
     void resolve();
 
-    void applyForce(double mss);
+    QList<Capsule> toCapsuleList(Bone *root);
 
-    void render();
+    void render(RenderMode r);
 
     Bone * mRoot;
     Bone * mSelected;
@@ -33,8 +36,6 @@ public:
     bool load(const QString & filename);
 
     bool selectBone(const QVector3D * pos);
-
-    void setRenderMode(RenderMode r) { mRenderMode = r; }
 signals:
     
 public slots:
@@ -46,7 +47,6 @@ private:
     void renderBoneVolume(Bone *bone, GLUquadricObj * obj);
     bool resolveChildren(Bone * bone);
     void linkJoints(Bone * bone);
-    void applyForce(Bone * bone, double mss);
 
     RenderMode mRenderMode;
 };

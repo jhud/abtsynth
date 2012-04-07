@@ -11,10 +11,10 @@
 
 
 Skeleton::Skeleton(QObject *parent)
-  : QObject(parent)
-  , mRoot(0)
-  , mSelected(0)
-  , mRenderMode(RenderSolid)
+    : QObject(parent)
+    , mRoot(0)
+    , mSelected(0)
+    , mRenderMode(RenderSolid)
 {
 }
 
@@ -35,35 +35,42 @@ void Skeleton::resolve()
     }
 }
 
-void Skeleton::applyForce(double mss)
+QList<Capsule> Skeleton::toCapsuleList(Bone * root)
 {
-    if (!mRoot) {
-        return;
+    QList<Capsule> intervals;
+
+    if (!root) {
+        return intervals;
     }
-    foreach (QObject * obj, mRoot->children()) {
+
+    intervals.append(root->toCapsule());
+
+    foreach (QObject * obj, root->children()) {
         Bone * childBone = (Bone*)obj;
 
-        applyForce(childBone, mss);
+        intervals.append(toCapsuleList(childBone));
     }
+
+    return intervals;
 }
 
-void Skeleton::render()
+void Skeleton::render(RenderMode r)
 {
     if (!mRoot) {
         return;
     }
 
-    if (mRenderMode == RenderSolid) {
+    if (r == RenderSolid) {
         GLUquadricObj * obj = gluNewQuadric();
         renderBoneVolume(mRoot, obj);
         gluDeleteQuadric(obj);
     }
-    else {
-    glBegin(GL_LINES);
+    else if (r == RenderStickman){
+        glBegin(GL_LINES);
 
-    renderBone(mRoot);
+        renderBone(mRoot);
 
-    glEnd();
+        glEnd();
     }
 }
 
@@ -72,34 +79,34 @@ bool Skeleton::load(const QString &filename)
     QDomDocument doc( "Skeleton" );
     QFile file( filename );
     if( !file.open(QFile::ReadOnly ) ) {
-      return false;
+        return false;
     }
     if( !doc.setContent( &file ) )
     {
-      file.close();
-      return false;
+        file.close();
+        return false;
     }
     file.close();
 
     QDomElement root = doc.documentElement();
     if( root.tagName() != "skeleton" ) {
-      return false;
+        return false;
     }
 
     QDomNode n = root.firstChild();
     while( !n.isNull() )
     {
-      QDomElement e = n.toElement();
-      if( !e.isNull() )
-      {
-        if( e.tagName() == "bone" )
+        QDomElement e = n.toElement();
+        if( !e.isNull() )
         {
-            mRoot = new Bone(0);
-            mRoot->parse(&n);
+            if( e.tagName() == "bone" )
+            {
+                mRoot = new Bone(0);
+                mRoot->parse(&n);
+            }
         }
-      }
 
-      n = n.nextSibling();
+        n = n.nextSibling();
     }
 
     linkJoints(mRoot);
@@ -266,21 +273,21 @@ void Skeleton::renderBoneVolume(Bone *bone, GLUquadricObj * quadric)
     float width = bone->length()*bone->thicknessRatio()*0.5f;
 
     if (bone->thicknessRatio() < 1.0f) {
-    glPushMatrix();
-    {
-        const QVector3D up(0 ,1 ,0);
-        multLookAt(bone->start(), bone->end(), up);
-        gluCylinder(quadric, width, width, bone->length(), 6, 2);
-    }
-    glPopMatrix();
+        glPushMatrix();
+        {
+            const QVector3D up(0 ,1 ,0);
+            multLookAt(bone->start(), bone->end(), up);
+            gluCylinder(quadric, width, width, bone->length(), 6, 2);
+        }
+        glPopMatrix();
 
 
-    glPushMatrix();
-    {
-        glTranslatef(bone->end().x(), bone->end().y(), bone->end().z());
-        gluSphere(quadric, width,12,12);
-    }
-    glPopMatrix();
+        glPushMatrix();
+        {
+            glTranslatef(bone->end().x(), bone->end().y(), bone->end().z());
+            gluSphere(quadric, width,12,12);
+        }
+        glPopMatrix();
     }
 
     glPushMatrix();
@@ -297,7 +304,7 @@ bool Skeleton::resolveChildren(Bone *bone)
         return true;
     }
 
-    bool isResolved = bone->resolve();   
+    bool isResolved = bone->resolve();
 
     foreach (QObject * obj, bone->children()) {
         Bone * childBone = (Bone*)obj;
@@ -332,20 +339,4 @@ void Skeleton::linkJoints(Bone *bone)
 }
 
 
-void Skeleton::applyForce(Bone *bone, double mss)
-{
-    if (!mRoot) {
-        return;
-    }
-    foreach (QObject * obj, bone->children()) {
-        Bone * childBone = (Bone*)obj;
-        applyForce(childBone, mss);
-    }
-
-    bone->mVel[0].setY(mss);
-    bone->mVel[1].setY(mss);
-
-    //bone->mPos[0] += bone->mVel[0];
-    //bone->mPos[1] += bone->mVel[1];
-}
 

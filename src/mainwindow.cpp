@@ -65,3 +65,18 @@ void MainWindow::on_actionRenderStickman_triggered()
 {
     ui->glViewContainer->setRenderMode(Skeleton::RenderStickman);
 }
+
+void MainWindow::on_actionRender_triggered()
+{
+    ui->glViewContainer->setRenderMode(Skeleton::RenderFinal);
+}
+
+float MainWindow::gravity()
+{
+    return ui->gravity->value();
+}
+
+float MainWindow::noise()
+{
+    return ui->noise->value();
+}

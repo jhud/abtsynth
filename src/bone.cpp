@@ -1,10 +1,10 @@
 #include "bone.h"
+#include "common.h"
+#include "maths.h"
 
 #include <QtGlobal>
 #include <QDomDocument>
 #include <QDebug>
-
-#define RandFloat() (double(qrand()) / double(RAND_MAX))
 
 Bone::Bone(QObject *parent)
     : QObject(parent)
@@ -92,7 +92,7 @@ void Bone::setEnd(double x, double y, double z)
 
 float Bone::distanceFromPoint(const QVector3D *point)
 {
-    return point->distanceToLine(*mPos[0], *mPos[1]);
+    return Maths::distanceToSegment(*point, *mPos[0], *mPos[1]);
 }
 
 bool Bone::resolve()
@@ -124,4 +124,9 @@ bool Bone::resolve()
     *e = *s - diff.normalized() * (actualLength - lengthDiff*0.95);
 
     return false;
+}
+
+Capsule Bone::toCapsule()
+{
+    return Capsule(*mPos[0], *mPos[1], mLength * mThicknessRatio * 0.5);
 }
