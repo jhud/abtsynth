@@ -3,22 +3,22 @@
     <bone length="0.14" name="neck" thickness="0.7">
       <bone length="0.3" name="leftArm" thickness="0.25">
         <bone length="0.27" name="leftForearm" thickness="0.25">
-                      <bone length="0.10" name="leftHand">
-		        <bone length="0.10" name="leftMiddleFinger">
+                      <bone length="0.10" name="leftHand" thickness="0.35">
+                        <bone length="0.10" name="leftMiddleFinger" thickness="0.25">
 			      </bone>
 			    </bone>
 			  </bone>
 			</bone>
             <bone length="0.3" name="rightArm" thickness="0.25">
                     <bone length="0.27" name="rightForearm" thickness="0.25">
-		      <bone length="0.10" name="rightHand">
+                      <bone length="0.10" name="rightHand" thickness="0.35">
 
-		        <bone length="0.10" name="rightMiddleFinger">
+                        <bone length="0.10" name="rightMiddleFinger" thickness="0.25">
 			      </bone>
 			    </bone>
 			  </bone>
       </bone>
-                  <bone length="0.55" name="back" thickness="0.2">
+                  <bone length="0.55" name="back" thickness="0.25">
         <bone length="0.18" name="lhip" thickness="0.5">
           <bone length="0.42" name="leftThigh" thickness="0.4">
                         <bone length="0.42" name="leftShin" thickness="0.3">

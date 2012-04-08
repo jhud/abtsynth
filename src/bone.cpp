@@ -128,5 +128,5 @@ bool Bone::resolve()
 
 Capsule Bone::toCapsule()
 {
-    return Capsule(*mPos[0], *mPos[1], mLength * mThicknessRatio * 0.5);
+    return Capsule(*mPos[0], *mPos[1], mLength * mThicknessRatio * 0.5, mThicknessRatio >= 1.0f);
 }
