@@ -1,5 +1,9 @@
 <skeleton>
   <bone length="0.20" name="head" thickness="1.5">
+  <bone length="0.11" name="jaw" thickness="1.0">
+    <bone length="0.15" name="face" join="head" thickness="1.2">
+    </bone>
+  </bone>
     <bone length="0.14" name="neck" thickness="0.7">
       <bone length="0.3" name="leftArm" thickness="0.25">
         <bone length="0.27" name="leftForearm" thickness="0.25">
