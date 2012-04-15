@@ -71,12 +71,16 @@ void MainWindow::on_actionRender_triggered()
     ui->glViewContainer->setRenderMode(Skeleton::RenderFinal);
 }
 
-float MainWindow::gravity()
+float MainWindow::param(const QString & name)
 {
-    return ui->gravity->value();
+    QDoubleSpinBox* obj = ui->parametersDock->findChild<QDoubleSpinBox*>(name);
+
+    if (obj) {
+        return obj->value();
+    }
+    else {
+        qDebug() << "ERROR: parameter" << name << "not found!";
+        return 0;
+    }
 }
 
-float MainWindow::noise()
-{
-    return ui->noise->value();
-}

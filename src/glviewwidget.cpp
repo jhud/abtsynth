@@ -37,7 +37,7 @@ GlViewWidget::GlViewWidget(QWidget *parent) :
         connect(timer, SIGNAL(timeout()), this, SLOT(tick()));
         timer->start(50);
 
-        for (int i=0; i<1000; i++) {
+        for (int i=0; i<100; i++) {
             addSpark();
         }
     }
@@ -114,7 +114,34 @@ void GlViewWidget::paintGL()
         glEnable(GL_DEPTH_TEST);
     }
 
+    glDisable(GL_DEPTH_TEST);
+    int exposure = (int)PARAM("exposure");
+    glColor3ub(exposure, exposure, exposure );
+    float thickness = (PARAM("thickness"));
+    glBegin(GL_TRIANGLES);
+    foreach (Spark * spark, mSparks) {
+        if (spark->isBufferFull()) {
+            QVector3D left, right;
+            spark->polyPoints(left, right, thickness);
 
+            if ((spark->mBackPolyPoints[0] - spark->mPos).length() < 1.0) {
+                glVertex3d(left.x(), left.y(), left.z());
+                glVertex3d(right.x(), right.y(), right.z());
+                glVertex3d(spark->mBackPolyPoints[0].x(), spark->mBackPolyPoints[0].y(), spark->mBackPolyPoints[0].z());
+
+                glVertex3d(right.x(), right.y(), right.z());
+                glVertex3d(spark->mBackPolyPoints[1].x(), spark->mBackPolyPoints[1].y(), spark->mBackPolyPoints[1].z());
+                glVertex3d(spark->mBackPolyPoints[0].x(), spark->mBackPolyPoints[0].y(), spark->mBackPolyPoints[0].z());
+            }
+
+            spark->mBackPolyPoints[0] = left;
+            spark->mBackPolyPoints[1] = right;
+        }
+    }
+    glEnd();
+    glEnable(GL_DEPTH_TEST);
+
+    /*
     glDisable(GL_DEPTH_TEST);
     glColor3ub(1, 1, 1 );
     glBegin(GL_POINTS);
@@ -123,7 +150,7 @@ void GlViewWidget::paintGL()
     }
     glEnd();
     glEnable(GL_DEPTH_TEST);
-
+*/
 }
 
 void GlViewWidget::mouseMoveEvent(QMouseEvent * me)
@@ -231,6 +258,7 @@ void GlViewWidget::setRenderMode(Skeleton::RenderMode rm)
         glEnable(GL_BLEND);
     }
     else {
+        glClearColor(0,0,0.5,1);
         glDisable(GL_BLEND);
     }
 
@@ -250,62 +278,84 @@ void GlViewWidget::updateSparks()
 {
     QList<Capsule> cl = mSkeleton->toCapsuleList(mSkeleton->mRoot);
 
-    const double noise = MainWindow::get().noise();
+    const double noise = PARAM("noise");
+    const float gravity = PARAM("gravity");
 
     foreach (Spark* sp, mSparks) {
-        sp->mPos += QVector3D(RandFloatNeg()*noise, RandFloatNeg()*noise, RandFloatNeg()*noise);
 
-        const Capsule * closest = 0;
-        float minDist = 9999.0f;
-        float lowest = 100;
-        float highest = -100;
-        foreach (const Capsule & c, cl) {
-            float dist = c.distanceFrom(sp->mPos);
-            if (dist < minDist) {
-                minDist = dist;
-                closest = &c;
-            }
-
-            if (c.mStart.y() < lowest)
-            {
-                lowest = c.mStart.y();
-            }
-
-            if (c.mStart.y() > highest)
-            {
-                highest = c.mStart.y();
-            }
-        }
-
-        const Capsule * target = closest;
-    //    Capsule * target = &cl[(int(sp)/4)%cl.count()];
-
+        for (int i=0; i < 3; i++)
         {
-            QVector3D capsuleCentre = Maths::closestPointOnSegment(sp->mPos, target->mStart, target->mEnd);
+            sp->mPos += QVector3D(RandFloatNeg()*noise, RandFloatNeg()*noise, RandFloatNeg()*noise);
 
-            if (minDist > 0) {
-                sp->mPos += (capsuleCentre-sp->mPos).normalized() * 0.01f;
+            const Capsule * closest = 0;
+            float minDist = 9999.0f;
+            float lowest = 100;
+            float highest = -100;
+            foreach (const Capsule & c, cl) {
+                float dist = c.distanceFrom(sp->mPos);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closest = &c;
+                }
+
+                if (c.mStart.y() < lowest)
+                {
+                    lowest = c.mStart.y();
+                }
+
+                if (c.mStart.y() > highest)
+                {
+                    highest = c.mStart.y();
+                }
             }
-            else
+
+            const Capsule * target = closest;
+            //    Capsule * target = &cl[(int(sp)/4)%cl.count()];
+
             {
-                sp->mPos += (capsuleCentre-sp->mPos).normalized()*-0.002f ;
+                QVector3D capsuleCentre = Maths::closestPointOnSegment(sp->mPos, target->mStart, target->mEnd);
+
+                sp->mNormal = (capsuleCentre-sp->mPos).normalized();
+
+
+                if (minDist > 0) {
+                    sp->mPos += sp->mNormal * 0.01f;
+                }
+                else
+                {
+                    sp->mPos += sp->mNormal*-0.002f ;
+                     sp->mPos += (target->mEnd - target->mStart).normalized()*0.01;
+                }
+
+
+
+                sp->mPos.setY(sp->mPos.y()-gravity);
+
+            /*    {
+                    sp->mPos.setY(sp->mPos.y() - gravity);
+                }*/
             }
 
-            {
-                sp->mPos.setY(sp->mPos.y() - MainWindow::get().gravity());
+            if (sp->mPos.y() < lowest-2.0) {
+                sp->mPos.setX(sp->mPos.x() + RandFloatNeg()*0.9);
+                sp->mPos.setY(highest+1.8);
+                sp->mPos.setZ(sp->mPos.z() + RandFloatNeg()*0.9);
+                sp->reset();
             }
-        }
-
-        if (sp->mPos.y() < lowest-1.0) {
-            sp->mPos.setX(sp->mPos.x() + RandFloatNeg()*0.5);
-            sp->mPos.setY(highest+0.8);
-        }
 
 
-        if (sp->mPos.y() > highest+1.0) {
-            sp->mPos.setX(sp->mPos.x() + RandFloatNeg()*0.5);
-            sp->mPos.setY(lowest-0.8);
+            if (sp->mPos.y() > highest+2.0) {
+                sp->mPos.setX(sp->mPos.x() + RandFloatNeg()*0.9);
+                sp->mPos.setY(lowest-1.8);
+                               sp->mPos.setZ(sp->mPos.z() + RandFloatNeg()*0.9);
+                sp->reset();
+            }
+
+
+
         }
+
+        sp->update();
     }
 }
 

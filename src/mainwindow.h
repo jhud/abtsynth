@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 
+// Macro to extract a param from the UI
+#define PARAM(x) (MainWindow::get().param(x))
+
 namespace Ui {
 class MainWindow;
 }
@@ -37,11 +40,10 @@ private slots:
     void on_actionRender_triggered();
 
 public:
-    float gravity();
-
-    float noise();
+    float param(const QString & name);
 
 private:
+
     Ui::MainWindow *ui;
 };
 
