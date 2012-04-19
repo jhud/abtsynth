@@ -75,6 +75,9 @@
    <addaction name="actionRender"/>
   </widget>
   <widget class="QDockWidget" name="parametersDock">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
@@ -89,6 +92,9 @@
      </item>
      <item>
       <widget class="QDoubleSpinBox" name="gravity">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <property name="decimals">
         <number>3</number>
        </property>
@@ -106,43 +112,72 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Noise</string>
+        <string>heat</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="noise">
-       <property name="decimals">
-        <number>3</number>
+      <widget class="QDial" name="heat">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(255, 255, 255);
+gridline-color: rgb(0, 85, 255);
+alternate-background-color: rgb(255, 0, 0);</string>
        </property>
        <property name="maximum">
-        <double>0.200000000000000</double>
+        <number>25</number>
        </property>
        <property name="singleStep">
-        <double>0.005000000000000</double>
+        <number>1</number>
        </property>
-       <property name="value">
-        <double>0.000000000000000</double>
+       <property name="pageStep">
+        <number>5</number>
+       </property>
+       <property name="tracking">
+        <bool>false</bool>
+       </property>
+       <property name="invertedAppearance">
+        <bool>false</bool>
+       </property>
+       <property name="invertedControls">
+        <bool>false</bool>
+       </property>
+       <property name="notchTarget">
+        <double>2.000000000000000</double>
+       </property>
+       <property name="notchesVisible">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Exposure</string>
+        <string>exposure</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="exposure">
-       <property name="decimals">
-        <number>0</number>
-       </property>
+      <widget class="QDial" name="exposure">
        <property name="minimum">
-        <double>1.000000000000000</double>
+        <number>1</number>
        </property>
        <property name="maximum">
-        <double>255.000000000000000</double>
+        <number>6400</number>
+       </property>
+       <property name="singleStep">
+        <number>100</number>
+       </property>
+       <property name="pageStep">
+        <number>10</number>
+       </property>
+       <property name="value">
+        <number>1</number>
+       </property>
+       <property name="notchTarget">
+        <double>0.000100000000000</double>
+       </property>
+       <property name="notchesVisible">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

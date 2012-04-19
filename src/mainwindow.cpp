@@ -53,7 +53,7 @@ void MainWindow::on_actionSideCamera_triggered()
 
 void MainWindow::on_actionAboveCamera_triggered()
 {
-        ui->glViewContainer->setCamera(GlViewWidget::CameraAbove);
+    ui->glViewContainer->setCamera(GlViewWidget::CameraAbove);
 }
 
 void MainWindow::on_actionRenderSolid_triggered()
@@ -79,8 +79,14 @@ float MainWindow::param(const QString & name)
         return obj->value();
     }
     else {
-        qDebug() << "ERROR: parameter" << name << "not found!";
-        return 0;
+        QDial* dial = ui->parametersDock->findChild<QDial*>(name);
+        if (dial) {
+            return (float)dial->value() / 100.0f;
+        }
+        else {
+            qDebug() << "ERROR: parameter" << name << "not found!";
+            return 0;
+        }
     }
 }
 

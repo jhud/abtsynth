@@ -278,14 +278,14 @@ void GlViewWidget::updateSparks()
 {
     QList<Capsule> cl = mSkeleton->toCapsuleList(mSkeleton->mRoot);
 
-    const double noise = PARAM("noise");
+    const double heat = PARAM("heat");
     const float gravity = PARAM("gravity");
 
     foreach (Spark* sp, mSparks) {
 
         for (int i=0; i < 3; i++)
         {
-            sp->mPos += QVector3D(RandFloatNeg()*noise, RandFloatNeg()*noise, RandFloatNeg()*noise);
+            sp->mPos += QVector3D(RandFloatNeg()*heat, RandFloatNeg()*heat, RandFloatNeg()*heat);
 
             const Capsule * closest = 0;
             float minDist = 9999.0f;
