@@ -20,7 +20,8 @@ SOURCES += src/main.cpp\
     src/skeleton.cpp \
     src/spark.cpp \
     src/capsule.cpp \
-    src/maths.cpp
+    src/maths.cpp \
+    src/ribbon.cpp
 
 HEADERS  += src/mainwindow.h \
     src/glviewwidget.h \
@@ -29,7 +30,8 @@ HEADERS  += src/mainwindow.h \
     src/spark.h \
     src/capsule.h \
     src/common.h \
-    src/maths.h
+    src/maths.h \
+    src/ribbon.h
 
 FORMS    += \
     src/mainwindow.ui

@@ -1,8 +1,11 @@
 #include "spark.h"
 
+#include "ribbon.h"
+
 Spark::Spark()
     : mNumWritten(0)
 {
+    mRibbon = new Ribbon(0);
 }
 
 void Spark::update()

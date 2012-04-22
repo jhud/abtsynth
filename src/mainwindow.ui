@@ -119,8 +119,9 @@
      <item>
       <widget class="QDial" name="heat">
        <property name="styleSheet">
-        <string notr="true">color: rgb(255, 255, 255);
-gridline-color: rgb(0, 85, 255);
+        <string notr="true">color: rgb(170, 0, 0);
+gridline-color: rgb(170, 0, 0);
+border-color: rgb(170, 0, 0);
 alternate-background-color: rgb(255, 0, 0);</string>
        </property>
        <property name="maximum">
@@ -175,6 +176,35 @@ alternate-background-color: rgb(255, 0, 0);</string>
        </property>
        <property name="notchTarget">
         <double>0.000100000000000</double>
+       </property>
+       <property name="notchesVisible">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>lifetime</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDial" name="lifetime">
+       <property name="minimum">
+        <number>5</number>
+       </property>
+       <property name="maximum">
+        <number>2000</number>
+       </property>
+       <property name="singleStep">
+        <number>10</number>
+       </property>
+       <property name="pageStep">
+        <number>100</number>
+       </property>
+       <property name="notchTarget">
+        <double>5.000000000000000</double>
        </property>
        <property name="notchesVisible">
         <bool>true</bool>

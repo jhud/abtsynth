@@ -11,6 +11,10 @@
 #include <GL/glu.h>
 #include <qevent.h>
 #include <QMessageBox>
+#include "ribbon.h"
+
+
+#define RandRangeFloat(x, y) (float(rand()%RAND_MAX)/RAND_MAX * ((y)-(x)) - ((x)*0.5f))
 
 GLUquadricObj * qo;
 QVector3D pick;
@@ -118,7 +122,14 @@ void GlViewWidget::paintGL()
     int exposure = (int)PARAM("exposure");
     glColor3ub(exposure, exposure, exposure );
     float thickness = (PARAM("thickness"));
-    glBegin(GL_TRIANGLES);
+
+    foreach (Spark * spark, mSparks) {
+        if (!(rand()&7)) {
+        spark->mRibbon->draw(spark->mPos);
+        }
+    }
+
+ /*   glBegin(GL_TRIANGLES);
     foreach (Spark * spark, mSparks) {
         if (spark->isBufferFull()) {
             QVector3D left, right;
@@ -138,8 +149,11 @@ void GlViewWidget::paintGL()
             spark->mBackPolyPoints[1] = right;
         }
     }
-    glEnd();
+    glEnd();*/
+
+
     glEnable(GL_DEPTH_TEST);
+
 
     /*
     glDisable(GL_DEPTH_TEST);
@@ -280,79 +294,79 @@ void GlViewWidget::updateSparks()
 
     const double heat = PARAM("heat");
     const float gravity = PARAM("gravity");
+    const int lifetime = PARAM("lifetime")*10;
 
     foreach (Spark* sp, mSparks) {
 
-        for (int i=0; i < 3; i++)
-        {
-            sp->mPos += QVector3D(RandFloatNeg()*heat, RandFloatNeg()*heat, RandFloatNeg()*heat);
+        sp->mPos += QVector3D(RandFloatNeg()*heat, RandFloatNeg()*heat, RandFloatNeg()*heat);
 
-            const Capsule * closest = 0;
-            float minDist = 9999.0f;
-            float lowest = 100;
-            float highest = -100;
-            foreach (const Capsule & c, cl) {
-                float dist = c.distanceFrom(sp->mPos);
-                if (dist < minDist) {
-                    minDist = dist;
-                    closest = &c;
-                }
-
-                if (c.mStart.y() < lowest)
-                {
-                    lowest = c.mStart.y();
-                }
-
-                if (c.mStart.y() > highest)
-                {
-                    highest = c.mStart.y();
-                }
+        const Capsule * closest = 0;
+        float minDist = 9999.0f;
+        float lowest = 100;
+        float highest = -100;
+        foreach (const Capsule & c, cl) {
+            float dist = c.distanceFrom(sp->mPos);
+            if (dist < minDist) {
+                minDist = dist;
+                closest = &c;
             }
 
-            const Capsule * target = closest;
-            //    Capsule * target = &cl[(int(sp)/4)%cl.count()];
-
+            if (c.mStart.y() < lowest)
             {
-                QVector3D capsuleCentre = Maths::closestPointOnSegment(sp->mPos, target->mStart, target->mEnd);
+                lowest = c.mStart.y();
+            }
 
-                sp->mNormal = (capsuleCentre-sp->mPos).normalized();
+            if (c.mStart.y() > highest)
+            {
+                highest = c.mStart.y();
+            }
+        }
+
+        const Capsule * target = closest;
+        //    Capsule * target = &cl[(int(sp)/4)%cl.count()];
+
+        {
+            QVector3D capsuleCentre = Maths::closestPointOnSegment(sp->mPos, target->mStart, target->mEnd);
+
+            sp->mNormal = (capsuleCentre-sp->mPos).normalized();
 
 
-                if (minDist > 0) {
-                    sp->mPos += sp->mNormal * 0.01f;
-                }
-                else
-                {
-                    sp->mPos += sp->mNormal*-0.002f ;
-                     sp->mPos += (target->mEnd - target->mStart).normalized()*0.01;
-                }
+            if (minDist > 0) {
+                sp->mPos += sp->mNormal * 0.01f;
+            }
+            else
+            {
+                sp->mPos += sp->mNormal*-0.002f ;
+                sp->mPos += (target->mEnd - target->mStart).normalized()*0.01;
+            }
 
 
 
-                sp->mPos.setY(sp->mPos.y()-gravity);
+            sp->mPos.setY(sp->mPos.y()-gravity);
 
             /*    {
                     sp->mPos.setY(sp->mPos.y() - gravity);
                 }*/
-            }
+        }
 
-            if (sp->mPos.y() < lowest-2.0) {
-                sp->mPos.setX(sp->mPos.x() + RandFloatNeg()*0.9);
-                sp->mPos.setY(highest+1.8);
-                sp->mPos.setZ(sp->mPos.z() + RandFloatNeg()*0.9);
-                sp->reset();
-            }
+        if (sp->numWritten() > lifetime + (rand()%63)) {
+            sp->mPos = (cl[rand()%cl.length()].mStart);
+            sp->reset();
+        }
 
-
-            if (sp->mPos.y() > highest+2.0) {
-                sp->mPos.setX(sp->mPos.x() + RandFloatNeg()*0.9);
-                sp->mPos.setY(lowest-1.8);
-                               sp->mPos.setZ(sp->mPos.z() + RandFloatNeg()*0.9);
-                sp->reset();
-            }
+        if (sp->mPos.y() < lowest-2.0) {
+            sp->mPos.setX(sp->mPos.x() + RandFloatNeg()*0.9);
+            sp->mPos.setY(highest+1.8);
+            sp->mPos.setZ(sp->mPos.z() + RandFloatNeg()*0.9);
+            sp->reset();
+        }
 
 
-
+        if (sp->mPos.y() > highest+2.0) {
+            sp->mPos.setX(sp->mPos.x() + RandFloatNeg()*0.9);
+            sp->mPos.setY(lowest-1.8);
+            sp->mPos.setZ(sp->mPos.z() + RandFloatNeg()*0.9);
+            sp->reset();
         }
 
         sp->update();

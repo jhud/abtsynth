@@ -7,17 +7,16 @@
     <bone length="0.14" name="neck" thickness="0.7">
       <bone length="0.3" name="leftArm" thickness="0.25">
         <bone length="0.27" name="leftForearm" thickness="0.25">
-                      <bone length="0.10" name="leftHand" thickness="0.35">
-                        <bone length="0.10" name="leftMiddleFinger" thickness="0.25">
+                      <bone length="0.10" name="leftHand" thickness="0.55">
+                        <bone length="0.10" name="leftMiddleFinger" thickness="0.55">
 			      </bone>
 			    </bone>
 			  </bone>
 			</bone>
             <bone length="0.3" name="rightArm" thickness="0.25">
                     <bone length="0.27" name="rightForearm" thickness="0.25">
-                      <bone length="0.10" name="rightHand" thickness="0.35">
-
-                        <bone length="0.10" name="rightMiddleFinger" thickness="0.25">
+                      <bone length="0.10" name="rightHand" thickness="0.55">
+                        <bone length="0.10" name="rightMiddleFinger" thickness="0.55">
 			      </bone>
 			    </bone>
 			  </bone>
