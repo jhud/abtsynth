@@ -271,29 +271,37 @@ void Skeleton::renderBoneVolume(Bone *bone, GLUquadricObj * quadric)
     }
 
     float width = bone->length()*bone->thicknessRatio()*0.5f;
-
-    if (bone->thicknessRatio() < 1.0f) {
-        glPushMatrix();
-        {
-            const QVector3D up(0 ,1 ,0);
-            multLookAt(bone->start(), bone->end(), up);
-            gluCylinder(quadric, width, width, bone->length(), 6, 2);
-        }
-        glPopMatrix();
-
-
-        glPushMatrix();
-        {
-            glTranslatef(bone->end().x(), bone->end().y(), bone->end().z());
-            gluSphere(quadric, width,12,12);
-        }
-        glPopMatrix();
-    }
+    const QVector3D up(0 ,1 ,0);
 
     glPushMatrix();
     {
-        glTranslatef(bone->start().x(), bone->start().y(), bone->start().z());
-        gluSphere(quadric, width,12,12);
+        multLookAt(bone->start(), bone->end(), up);
+
+        if (bone->thicknessRatio() < 1.0f) {
+            glPushMatrix();
+            {
+                glMultMatrixd(bone->transform());
+                gluCylinder(quadric, width, width, bone->length(), 18, 1);
+            }
+            glPopMatrix();
+
+
+            glPushMatrix();
+            {
+                glMultMatrixd(bone->transform());
+                glTranslatef(0, 0, bone->length());
+                gluSphere(quadric, width,12,12);
+            }
+            glPopMatrix();
+        }
+
+        glPushMatrix();
+        {
+            glMultMatrixd(bone->transform());
+           // glTranslatef(bone->start().x(), bone->start().y(), bone->start().z());
+            gluSphere(quadric, width,12,12);
+        }
+        glPopMatrix();
     }
     glPopMatrix();
 }

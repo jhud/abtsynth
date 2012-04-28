@@ -7,6 +7,7 @@
 #include "capsule.h"
 
 class QDomNode;
+class QMatrix4x4;
 
 class Bone : public QObject
 {
@@ -16,6 +17,8 @@ public:
     
     void setLength(double length);
     double length() { return mLength; }
+
+    double * transform();
 
     double thicknessRatio() { return mThicknessRatio; }
 
@@ -49,6 +52,8 @@ signals:
 public slots:
     
 private:
+    QMatrix4x4 * mTransform;
+    QMatrix4x4 * mTransformInverted;
     double mLength;
     double mThicknessRatio;
     QString mName;

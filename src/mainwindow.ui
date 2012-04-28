@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>492</width>
-    <height>412</height>
+    <height>570</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Charabesque</string>
+   <string>ABTsynth</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
@@ -99,13 +99,13 @@
         <number>3</number>
        </property>
        <property name="minimum">
-        <double>-0.100000000000000</double>
+        <double>-5.000000000000000</double>
        </property>
        <property name="maximum">
-        <double>0.100000000000000</double>
+        <double>5.000000000000000</double>
        </property>
        <property name="singleStep">
-        <double>0.001000000000000</double>
+        <double>0.100000000000000</double>
        </property>
       </widget>
      </item>
@@ -203,6 +203,9 @@ alternate-background-color: rgb(255, 0, 0);</string>
        <property name="pageStep">
         <number>100</number>
        </property>
+       <property name="value">
+        <number>100</number>
+       </property>
        <property name="notchTarget">
         <double>5.000000000000000</double>
        </property>
@@ -214,28 +217,32 @@ alternate-background-color: rgb(255, 0, 0);</string>
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Thickness</string>
+        <string>thickness</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="thickness">
-       <property name="decimals">
-        <number>3</number>
-       </property>
+      <widget class="QDial" name="thickness">
        <property name="minimum">
-        <double>0.001000000000000</double>
-       </property>
-       <property name="maximum">
-        <double>0.200000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>0.001000000000000</double>
+        <number>1</number>
        </property>
        <property name="value">
-        <double>0.050000000000000</double>
+        <number>3</number>
+       </property>
+       <property name="notchesVisible">
+        <bool>true</bool>
        </property>
       </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>attraction</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDial" name="attraction"/>
      </item>
      <item>
       <spacer name="verticalSpacer">

@@ -13,7 +13,12 @@ public:
     explicit Ribbon(QObject *parent = 0);
     
     void addRibbonCurve();
-    void draw(const QVector3D & newPoint);
+    void update(const QVector3D & newPoint, const QVector3D &newColour);
+    void draw();
+    void reset();
+    void setWidth(float width) { mRibbonWidth = width; }
+
+    QVector3D pos();
 
 private:
 
@@ -36,6 +41,8 @@ static const int SegmentsPerCurve = 10;
     QVector3D mStartPt;
     QVector3D mEndPt;
     QVector3D mControlPt;
+    QVector3D mColour;
+    QVector3D mOldColour;
 };
 
 #endif // RIBBON_H

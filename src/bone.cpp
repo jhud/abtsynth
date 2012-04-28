@@ -5,6 +5,7 @@
 #include <QtGlobal>
 #include <QDomDocument>
 #include <QDebug>
+#include <QMatrix4x4>
 
 Bone::Bone(QObject *parent)
     : QObject(parent)
@@ -12,11 +13,22 @@ Bone::Bone(QObject *parent)
 {
     mPos[0] = new QVector3D(RandFloat(), RandFloat(), RandFloat()); //@todo mem leak
     mPos[1] = new QVector3D(RandFloat(), RandFloat(), RandFloat());
+
+    mTransform = new QMatrix4x4();
+    mTransform->setToIdentity();
+
+    mTransformInverted = new QMatrix4x4();
+    *mTransformInverted = mTransform->inverted();
 }
 
 void Bone::setLength(double length)
 {
     mLength = length;
+}
+
+double *Bone::transform()
+{
+    return (double*)mTransform->data();
 }
 
 bool Bone::parse(QDomNode *node)
@@ -37,6 +49,24 @@ bool Bone::parse(QDomNode *node)
         mThicknessRatio = 0.1;
     }
 
+    val = elem.attribute("scalex", "1.0");
+    float valFloat = val.toFloat(&ok);
+    if (ok == true) {
+        mTransform->scale(valFloat, 1.0f, 1.0f);
+    }
+
+    val = elem.attribute("scaley", "1.0");
+    valFloat = val.toFloat(&ok);
+    if (ok == true) {
+        mTransform->scale(1.0f, valFloat, 1.0f);
+    }
+
+    val = elem.attribute("scalez", "1.0");
+    valFloat = val.toFloat(&ok);
+    if (ok == true) {
+        mTransform->scale(1.0f, 1.0f, valFloat);
+    }
+
     mName = elem.attribute("name", "unknown");
     mJoinedTo = elem.attribute("join", "");
 
@@ -55,6 +85,8 @@ bool Bone::parse(QDomNode *node)
 
       n = n.nextSibling();
     }
+
+    *mTransformInverted = mTransform->inverted();
 
     return true;
 }
@@ -117,7 +149,7 @@ bool Bone::resolve()
     double actualLength = diff.length();
     double lengthDiff = actualLength - mLength;
 
-    if (qAbs(lengthDiff) < 0.01) {
+    if (qAbs(lengthDiff) < 0.05) {
         return true;
     }
 

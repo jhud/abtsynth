@@ -11,7 +11,6 @@
 #include <GL/glu.h>
 #include <qevent.h>
 #include <QMessageBox>
-#include "ribbon.h"
 
 
 #define RandRangeFloat(x, y) (float(rand()%RAND_MAX)/RAND_MAX * ((y)-(x)) - ((x)*0.5f))
@@ -29,7 +28,7 @@ GlViewWidget::GlViewWidget(QWidget *parent) :
     setFocus();
 
     mSkeleton = new Skeleton(this);
-    if (!mSkeleton->load("../charabesque/data/guy.xml")) {
+    if (!mSkeleton->load("../abtsynth/data/guy.xml")) {
         new QMessageBox(QMessageBox::Critical, "Error", "Could not load skeleton.");
     }
     else {
@@ -41,7 +40,7 @@ GlViewWidget::GlViewWidget(QWidget *parent) :
         connect(timer, SIGNAL(timeout()), this, SLOT(tick()));
         timer->start(50);
 
-        for (int i=0; i<100; i++) {
+        for (int i=0; i<10; i++) {
             addSpark();
         }
     }
@@ -119,14 +118,11 @@ void GlViewWidget::paintGL()
     }
 
     glDisable(GL_DEPTH_TEST);
-    int exposure = (int)PARAM("exposure");
-    glColor3ub(exposure, exposure, exposure );
     float thickness = (PARAM("thickness"));
 
-    foreach (Spark * spark, mSparks) {
-        if (!(rand()&7)) {
-        spark->mRibbon->draw(spark->mPos);
-        }
+    foreach (Ribbon * ribbon, mRibbons)
+    {
+        ribbon->draw();
     }
 
  /*   glBegin(GL_TRIANGLES);
@@ -281,11 +277,11 @@ void GlViewWidget::setRenderMode(Skeleton::RenderMode rm)
 
 void GlViewWidget::addSpark()
 {
-    Spark * s = new Spark();
+    Ribbon * s = new Ribbon(this);
     // s->mPos = mSkeleton->mRoot->start();
-    s->mPos = QVector3D(RandFloatNeg(), RandFloatNeg(), RandFloatNeg());
+    s->update(QVector3D(RandFloatNeg(), RandFloatNeg(), RandFloatNeg()), QVector3D(0,0,0));
 
-    mSparks.append(s);
+    mRibbons.append(s);
 }
 
 void GlViewWidget::updateSparks()
@@ -294,18 +290,24 @@ void GlViewWidget::updateSparks()
 
     const double heat = PARAM("heat");
     const float gravity = PARAM("gravity");
+    const float width = PARAM("thickness")*0.5f;
+    const float attraction = PARAM("attraction");
     const int lifetime = PARAM("lifetime")*10;
+    const float exposure = PARAM("exposure");
 
-    foreach (Spark* sp, mSparks) {
+    foreach (Ribbon* sp, mRibbons) {
 
-        sp->mPos += QVector3D(RandFloatNeg()*heat, RandFloatNeg()*heat, RandFloatNeg()*heat);
+        QVector3D newPos = sp->pos();
+
+        newPos += QVector3D(RandFloatNeg()*heat, RandFloatNeg()*heat, RandFloatNeg()*heat);
+
 
         const Capsule * closest = 0;
         float minDist = 9999.0f;
         float lowest = 100;
         float highest = -100;
         foreach (const Capsule & c, cl) {
-            float dist = c.distanceFrom(sp->mPos);
+            float dist = c.distanceFrom(newPos);
             if (dist < minDist) {
                 minDist = dist;
                 closest = &c;
@@ -323,53 +325,46 @@ void GlViewWidget::updateSparks()
         }
 
         const Capsule * target = closest;
-        //    Capsule * target = &cl[(int(sp)/4)%cl.count()];
+        //Capsule * target = &cl[rand()%cl.size()];
 
-        {
-            QVector3D capsuleCentre = Maths::closestPointOnSegment(sp->mPos, target->mStart, target->mEnd);
+            QVector3D capsuleCentre = Maths::closestPointOnSegment(newPos, target->mStart, target->mEnd);
 
-            sp->mNormal = (capsuleCentre-sp->mPos).normalized();
+            QVector3D normal = (capsuleCentre-newPos).normalized();
 
 
             if (minDist > 0) {
-                sp->mPos += sp->mNormal * 0.01f;
+                newPos += normal * attraction;
             }
             else
             {
-                sp->mPos += sp->mNormal*-0.002f ;
-                sp->mPos += (target->mEnd - target->mStart).normalized()*0.01;
+                newPos += normal*-0.02f ;
+                newPos += (target->mEnd - target->mStart).normalized()*0.005;
             }
 
+            newPos += QVector3D(0, -gravity, 0);
 
 
-            sp->mPos.setY(sp->mPos.y()-gravity);
-
-            /*    {
-                    sp->mPos.setY(sp->mPos.y() - gravity);
-                }*/
-        }
-
-        if (sp->numWritten() > lifetime + (rand()%63)) {
-            sp->mPos = (cl[rand()%cl.length()].mStart);
-            sp->reset();
-        }
-
-        if (sp->mPos.y() < lowest-2.0) {
-            sp->mPos.setX(sp->mPos.x() + RandFloatNeg()*0.9);
-            sp->mPos.setY(highest+1.8);
-            sp->mPos.setZ(sp->mPos.z() + RandFloatNeg()*0.9);
+        if (newPos.y() < lowest-2.0) {
+            newPos.setX(newPos.x() + RandFloatNeg()*0.9);
+            newPos.setY(highest+1.8);
+            newPos.setZ(newPos.z() + RandFloatNeg()*0.9);
             sp->reset();
         }
 
 
-        if (sp->mPos.y() > highest+2.0) {
-            sp->mPos.setX(sp->mPos.x() + RandFloatNeg()*0.9);
-            sp->mPos.setY(lowest-1.8);
-            sp->mPos.setZ(sp->mPos.z() + RandFloatNeg()*0.9);
+        if (newPos.y() > highest+2.0) {
+            newPos.setX(newPos.x() + RandFloatNeg()*0.9);
+            newPos.setY(lowest-1.8);
+            newPos.setZ(newPos.z() + RandFloatNeg()*0.9);
             sp->reset();
         }
 
-        sp->update();
+        QVector3D colour = QVector3D(normal.x() * exposure,
+                                     normal.y() * exposure,
+                                     normal.z() * exposure) * (1.0f/255.0f);
+
+        sp->setWidth(width);
+        sp->update(newPos, colour);
     }
 }
 

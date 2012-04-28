@@ -2,7 +2,7 @@
 #define GLVIEWWIDGET_H
 
 #include "skeleton.h"
-#include "spark.h"
+#include "ribbon.h"
 
 #include <QGLWidget>
 #include <QList>
@@ -59,7 +59,7 @@ private:
     Skeleton::RenderMode mRenderMode;
     bool mSelectBoneEnds;
 
-    QList<Spark*> mSparks;
+    QList<Ribbon*> mRibbons;
 };
 
 #endif // GLVIEWWIDGET_H
