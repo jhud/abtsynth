@@ -1,3 +1,21 @@
+/* ABTSynth - 3D character poser with rigid body dynamics
+   URLs: https://github.com/jhud/abtsynth
+   Copyright (C) 2012, James Hudson
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program. If not, see http://www.gnu.org/licenses/.
+*/
+
 #include "bone.h"
 #include "common.h"
 #include "maths.h"
@@ -17,8 +35,8 @@ Bone::Bone(QObject *parent)
     mTransform = new QMatrix4x4();
     mTransform->setToIdentity();
 
-    mTransformInverted = new QMatrix4x4();
-    *mTransformInverted = mTransform->inverted();
+    mTransformInverse = new QMatrix4x4();
+    *mTransformInverse = mTransform->inverted();
 }
 
 void Bone::setLength(double length)
@@ -86,7 +104,7 @@ bool Bone::parse(QDomNode *node)
       n = n.nextSibling();
     }
 
-    *mTransformInverted = mTransform->inverted();
+    *mTransformInverse = mTransform->inverted();
 
     return true;
 }
@@ -160,5 +178,5 @@ bool Bone::resolve()
 
 Capsule Bone::toCapsule()
 {
-    return Capsule(*mPos[0], *mPos[1], mLength * mThicknessRatio * 0.5, mThicknessRatio >= 1.0f);
+    return Capsule(*mPos[0], *mPos[1], mLength * mThicknessRatio * 0.5, mThicknessRatio >= 1.0f, *mTransformInverse);
 }

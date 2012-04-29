@@ -53,7 +53,7 @@ public slots:
     
 private:
     QMatrix4x4 * mTransform;
-    QMatrix4x4 * mTransformInverted;
+    QMatrix4x4 * mTransformInverse;
     double mLength;
     double mThicknessRatio;
     QString mName;

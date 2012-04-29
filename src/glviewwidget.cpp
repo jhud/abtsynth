@@ -1,3 +1,21 @@
+/* ABTSynth - 3D character poser with rigid body dynamics
+   URLs: https://github.com/jhud/abtsynth
+   Copyright (C) 2012, James Hudson
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program. If not, see http://www.gnu.org/licenses/.
+*/
+
 #include "glviewwidget.h"
 #include "skeleton.h"
 #include "bone.h"
@@ -125,7 +143,7 @@ void GlViewWidget::paintGL()
         ribbon->draw();
     }
 
- /*   glBegin(GL_TRIANGLES);
+    /*   glBegin(GL_TRIANGLES);
     foreach (Spark * spark, mSparks) {
         if (spark->isBufferFull()) {
             QVector3D left, right;
@@ -327,21 +345,21 @@ void GlViewWidget::updateSparks()
         const Capsule * target = closest;
         //Capsule * target = &cl[rand()%cl.size()];
 
-            QVector3D capsuleCentre = Maths::closestPointOnSegment(newPos, target->mStart, target->mEnd);
+        QVector3D capsuleCentre = Maths::closestPointOnSegment(newPos, target->mStart, target->mEnd);
 
-            QVector3D normal = (capsuleCentre-newPos).normalized();
+        QVector3D normal = (capsuleCentre-newPos).normalized();
 
 
-            if (minDist > 0) {
-                newPos += normal * attraction;
-            }
-            else
-            {
-                newPos += normal*-0.02f ;
-                newPos += (target->mEnd - target->mStart).normalized()*0.005;
-            }
+        if (minDist > 0) {
+            newPos += normal * attraction;
+        }
+        else
+        {
+            newPos += normal*-0.02f ;
+            newPos += (target->mEnd - target->mStart).normalized()*0.005;
+        }
 
-            newPos += QVector3D(0, -gravity, 0);
+        newPos += QVector3D(0, -gravity, 0);
 
 
         if (newPos.y() < lowest-2.0) {
