@@ -33,12 +33,14 @@ Skeleton::Skeleton(QObject *parent)
     , mRoot(0)
     , mSelected(0)
     , mRenderMode(RenderSolid)
+    , mDomFile(0)
 {
 }
 
 Skeleton::~Skeleton()
 {
     delete mRoot;
+    delete mDomFile;
 }
 
 void Skeleton::resolve()
@@ -94,19 +96,21 @@ void Skeleton::render(RenderMode r)
 
 bool Skeleton::load(const QString &filename)
 {
-    QDomDocument doc( "Skeleton" );
+    delete mDomFile;
+    mDomFile = new QDomDocument( "Skeleton");
+
     QFile file( filename );
     if( !file.open(QFile::ReadOnly ) ) {
         return false;
     }
-    if( !doc.setContent( &file ) )
+    if( !mDomFile->setContent( &file ) )
     {
         file.close();
         return false;
     }
     file.close();
 
-    QDomElement root = doc.documentElement();
+    QDomElement root = mDomFile->documentElement();
     if( root.tagName() != "skeleton" ) {
         return false;
     }
@@ -131,6 +135,25 @@ bool Skeleton::load(const QString &filename)
 
     return true;
 }
+
+
+bool Skeleton::save(const QString &filename)
+{
+
+    QFile file( filename );
+    if( !file.open(QFile::WriteOnly ) ) {
+        return false;
+    }
+
+    writeBoneGraph(mRoot);
+
+    file.write(mDomFile->toByteArray());
+
+    file.close();
+
+    return true;
+}
+
 
 bool Skeleton::selectBone(const QVector3D *pos)
 {
@@ -361,6 +384,17 @@ void Skeleton::linkJoints(Bone *bone)
         Bone * childBone = (Bone*)obj;
         childBone->setStart(&bone->end());
         linkJoints(childBone);
+    }
+}
+
+void Skeleton::writeBoneGraph(Bone *bone)
+{
+    bone->writePose(*mDomFile);
+
+    foreach (QObject * obj, bone->children()) {
+        Bone * childBone = (Bone*)obj;
+
+        writeBoneGraph(childBone);
     }
 }
 

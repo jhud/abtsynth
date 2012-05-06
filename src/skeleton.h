@@ -9,6 +9,7 @@
 
 class Bone;
 class QVector3D;
+class QDomDocument;
 
 
 class Skeleton : public QObject
@@ -34,6 +35,7 @@ public:
     Bone * mSelected;
 
     bool load(const QString & filename);
+    bool save(const QString &filename);
 
     bool selectBone(const QVector3D * pos);
 signals:
@@ -47,8 +49,11 @@ private:
     void renderBoneVolume(Bone *bone, GLUquadricObj * obj);
     bool resolveChildren(Bone * bone);
     void linkJoints(Bone * bone);
+    void writeBoneGraph(Bone * bone);
 
     RenderMode mRenderMode;
+
+    QDomDocument * mDomFile;
 };
 
 #endif // SKELETON_H

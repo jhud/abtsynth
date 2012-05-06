@@ -39,6 +39,8 @@ private slots:
 
     void on_actionRender_triggered();
 
+    void on_action_Save_as_triggered();
+
 public:
     float param(const QString & name);
 

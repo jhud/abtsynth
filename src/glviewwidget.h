@@ -45,6 +45,8 @@ public:
 
     void updateSparks();
 
+    void save(const QString & filename);
+
 signals:
     
 public slots:

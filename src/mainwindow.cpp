@@ -23,6 +23,7 @@
 #include "skeleton.h"
 
 #include <QDebug>
+#include <QFileDialog>
 
 MainWindow * gMW=0;
 
@@ -108,3 +109,12 @@ float MainWindow::param(const QString & name)
     }
 }
 
+
+void MainWindow::on_action_Save_as_triggered()
+{
+    QString s = QFileDialog::getSaveFileName(this, "Save file", QString(), "Skeletons (*.xml)");
+
+    if (!s.isEmpty()) {
+        ui->glViewContainer->save(s);
+    }
+}

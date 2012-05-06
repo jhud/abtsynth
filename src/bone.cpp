@@ -24,6 +24,7 @@
 #include <QDomDocument>
 #include <QDebug>
 #include <QMatrix4x4>
+#include <qstringlist.h>
 
 Bone::Bone(QObject *parent)
     : QObject(parent)
@@ -85,6 +86,18 @@ bool Bone::parse(QDomNode *node)
         mTransform->scale(1.0f, 1.0f, valFloat);
     }
 
+    val = elem.attribute("startpos", "0.0 0.0 0.0");
+    QVector3D vec = toVector3D(val, &ok);
+    if (ok == true) {
+        setStart(vec.x(), vec.y(), vec.z());
+    }
+
+    val = elem.attribute("endpos", "0.0 0.0 0.0");
+    vec = toVector3D(val, &ok);
+    if (ok == true) {
+        setEnd(vec.x(), vec.y(), vec.z());
+    }
+
     mName = elem.attribute("name", "unknown");
     mJoinedTo = elem.attribute("join", "");
 
@@ -107,6 +120,20 @@ bool Bone::parse(QDomNode *node)
     *mTransformInverse = mTransform->inverted();
 
     return true;
+}
+
+void Bone::writePose(QDomDocument &file)
+{
+    QDomNodeList bones = file.elementsByTagName("bone");
+
+    for (int i = 0; i<bones.count(); i++) {
+        QDomNode bone = bones.at(i);
+        QDomNode name = bone.attributes().namedItem("name");
+        if (name.nodeValue() == mName) {
+            bone.toElement().setAttribute("startpos", writeVector3D(*mPos[0]));
+            bone.toElement().setAttribute("endpos", writeVector3D(*mPos[1]));
+        }
+    }
 }
 
 void Bone::setStart(double x, double y, double z)
@@ -179,4 +206,48 @@ bool Bone::resolve()
 Capsule Bone::toCapsule()
 {
     return Capsule(*mPos[0], *mPos[1], mLength * mThicknessRatio * 0.5, mThicknessRatio >= 1.0f, *mTransformInverse);
+}
+
+QVector3D Bone::toVector3D(const QString &in, bool *okAll)
+{
+    bool ok;
+    QVector3D ret;
+
+    if (okAll == 0)
+    {
+        okAll = &ok;
+    }
+
+    QStringList components = in.split(" ");
+
+    float valFloat = components[0].toFloat(&ok);
+    if (ok == true) {
+        ret.setX(valFloat);
+        *okAll = true;
+    }
+
+    valFloat = components[1].toFloat(&ok);
+    if (ok == true) {
+        ret.setY(valFloat);
+        *okAll = true;
+    }
+
+    valFloat = components[2].toFloat(&ok);
+    if (ok == true) {
+        ret.setZ(valFloat);
+        *okAll = true;
+    }
+
+    return ret;
+}
+
+QString Bone::writeVector3D(const QVector3D &vec)
+{
+    QString ret;
+
+    ret = QString::number(vec.x())
+            + " " + QString::number(vec.y())
+            + " " + QString::number(vec.z());
+
+    return ret;
 }

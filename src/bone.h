@@ -7,6 +7,7 @@
 #include "capsule.h"
 
 class QDomNode;
+class QDomDocument;
 class QMatrix4x4;
 
 class Bone : public QObject
@@ -26,6 +27,7 @@ public:
     QString joinedTo() const { return mJoinedTo; }
 
     bool parse(QDomNode * node);
+    void writePose(QDomDocument & element);
 
     /**
      * Replace start of bone with a new reference. Old instance is destroyed if the bone owned it.
@@ -51,6 +53,10 @@ signals:
     
 public slots:
     
+private:
+    QVector3D toVector3D(const QString & in, bool * ok = 0);
+    QString writeVector3D(const QVector3D & vec);
+
 private:
     QMatrix4x4 * mTransform;
     QMatrix4x4 * mTransformInverse;

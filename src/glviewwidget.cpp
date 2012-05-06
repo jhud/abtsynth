@@ -58,7 +58,7 @@ GlViewWidget::GlViewWidget(QWidget *parent) :
         connect(timer, SIGNAL(timeout()), this, SLOT(tick()));
         timer->start(50);
 
-        for (int i=0; i<10; i++) {
+        for (int i=0; i<5; i++) {
             addSpark();
         }
     }
@@ -384,6 +384,11 @@ void GlViewWidget::updateSparks()
         sp->setWidth(width);
         sp->update(newPos, colour);
     }
+}
+
+void GlViewWidget::save(const QString &filename)
+{
+        mSkeleton->save(filename);
 }
 
 void GlViewWidget::tick()
