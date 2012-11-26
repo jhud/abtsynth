@@ -20,6 +20,7 @@ public:
     double length() { return mLength; }
 
     double * transform();
+    const QMatrix4x4 & transformMatrix();
 
     double thicknessRatio() { return mThicknessRatio; }
 

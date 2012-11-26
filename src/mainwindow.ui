@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>492</width>
-    <height>570</height>
+    <width>978</width>
+    <height>586</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,7 +31,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>492</width>
+     <width>978</width>
      <height>25</height>
     </rect>
    </property>
@@ -230,17 +230,24 @@ alternate-background-color: rgb(255, 0, 0);</string>
       </widget>
      </item>
      <item>
-      <widget class="QDial" name="thickness">
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>3</number>
-       </property>
-       <property name="notchesVisible">
-        <bool>true</bool>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QDial" name="thickness">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="value">
+          <number>3</number>
+         </property>
+         <property name="notchesVisible">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDial" name="thicknessModulation"/>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QLabel" name="label_6">
@@ -251,6 +258,13 @@ alternate-background-color: rgb(255, 0, 0);</string>
      </item>
      <item>
       <widget class="QDial" name="attraction"/>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="clampDepthCheckbox">
+       <property name="text">
+        <string>Clamp depth</string>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer name="verticalSpacer">
@@ -340,6 +354,17 @@ alternate-background-color: rgb(255, 0, 0);</string>
     <string>Ctrl+S</string>
    </property>
   </action>
+  <action name="actionClamp_Depth">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Clamp Depth</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -351,5 +376,22 @@ alternate-background-color: rgb(255, 0, 0);</string>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>clampDepthCheckbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>actionClamp_Depth</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>112</x>
+     <y>551</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>308</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

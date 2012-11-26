@@ -50,6 +50,12 @@ double *Bone::transform()
     return (double*)mTransform->data();
 }
 
+    const QMatrix4x4 & Bone::transformMatrix()
+    {
+        return *mTransform;
+    }
+
+
 bool Bone::parse(QDomNode *node)
 {
     QDomElement elem = node->toElement();
@@ -205,7 +211,7 @@ bool Bone::resolve()
 
 Capsule Bone::toCapsule()
 {
-    return Capsule(*mPos[0], *mPos[1], mLength * mThicknessRatio * 0.5, mThicknessRatio >= 1.0f, *mTransformInverse);
+    return Capsule(*mPos[0], *mPos[1], mLength * mThicknessRatio * 0.5, mThicknessRatio >= 1.0f, *mTransformInverse, *mTransform);
 }
 
 QVector3D Bone::toVector3D(const QString &in, bool *okAll)

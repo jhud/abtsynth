@@ -18,7 +18,7 @@
      </bone>
     </bone>
    </bone>
-   <bone thickness="0.65" endpos="-0.238269 0.675832 0.284621" length="0.25" startpos="-0.240434 0.926115 0.230464" name="back" scalex="3.0">
+   <bone thickness="0.65" endpos="-0.238269 0.675832 0.284621" length="0.25" startpos="-0.240434 0.926115 0.230464" name="back" scalex="2.0">
     <bone thickness="0.45" endpos="-0.214439 0.428329 0.34576" length="0.25" startpos="-0.238269 0.675832 0.284621" name="lowerback">
      <bone thickness="0.5" endpos="-0.163145 0.256834 0.396386" length="0.18" startpos="-0.214439 0.428329 0.34576" name="lhip">
       <bone thickness="0.4" endpos="-0.147043 -0.154045 0.326512" length="0.42" startpos="-0.163145 0.256834 0.396386" name="leftThigh">

@@ -21,25 +21,49 @@
 
 #include <QMatrix4x4>
 
-Capsule::Capsule(const QVector3D & start, const QVector3D & end, float radius, bool isSphere, QMatrix4x4 & transform)
+Capsule::Capsule(const QVector3D & start, const QVector3D & end, float radius, bool isSphere, QMatrix4x4 & transform, QMatrix4x4 & invertedTransform)
     : mStart(start)
     , mEnd(end)
     , mRadius(radius)
     , mTransform(&transform)
+    , mInverseTransform(&invertedTransform)
     , mIsSphere(isSphere)
 {
 }
 
 
 
-float Capsule::distanceFrom(const QVector3D &pt) const
+float Capsule::distanceFrom(const QVector3D &pt, QVector3D * nearestPoint) const
 {
     QVector3D ptInObjSpace = mTransform->map(pt-mStart);
 
     if (mIsSphere) {
+        if (nearestPoint) {
+            *nearestPoint = mInverseTransform->map(ptInObjSpace.normalized()*mRadius) + mStart;
+        }
+
         return (ptInObjSpace).length() - mRadius;
+    }
+
+    if (nearestPoint) {
+        QVector3D segmentPoint = Maths::closestPointOnSegment(ptInObjSpace, QVector3D(0,0,0), mEnd-mStart);
+        QVector3D normal = (ptInObjSpace-segmentPoint).normalized();
+        *nearestPoint = mInverseTransform->map((normal*mRadius)+segmentPoint) + mStart;
     }
 
     return Maths::distanceToSegment(ptInObjSpace, QVector3D(0,0,0), mEnd-mStart) - mRadius;
 }
 
+QVector3D Capsule::normal(const QVector3D &pt) const
+{
+    QVector3D ptInObjSpace = mTransform->map(pt-mStart);
+
+    if (mIsSphere) {
+
+        return (ptInObjSpace-mStart).normalized();
+    }
+
+        QVector3D segmentPoint = Maths::closestPointOnSegment(ptInObjSpace, QVector3D(0,0,0), mEnd-mStart);
+        return (ptInObjSpace-segmentPoint).normalized();
+
+}

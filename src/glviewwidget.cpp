@@ -22,6 +22,7 @@
 #include "mainwindow.h"
 #include "common.h"
 #include "maths.h"
+#include "branch.h"
 
 #include <QDebug>
 #include <math.h>
@@ -58,9 +59,11 @@ GlViewWidget::GlViewWidget(QWidget *parent) :
         connect(timer, SIGNAL(timeout()), this, SLOT(tick()));
         timer->start(50);
 
-        for (int i=0; i<5; i++) {
+        for (int i=0; i<0; i++) {
             addSpark();
         }
+
+        mBloodVessels = mSkeleton->toBranchRoot(mSkeleton->mRoot);
     }
 }
 
@@ -136,12 +139,17 @@ void GlViewWidget::paintGL()
     }
 
     glDisable(GL_DEPTH_TEST);
-    float thickness = (PARAM("thickness"));
 
     foreach (Ribbon * ribbon, mRibbons)
     {
         ribbon->draw();
     }
+
+    glColor3b(255,0,0);
+    glBegin(GL_LINES);
+    mBloodVessels->render();
+    glEnd();
+    glColor3b(255,255,255);
 
     /*   glBegin(GL_TRIANGLES);
     foreach (Spark * spark, mSparks) {
@@ -306,10 +314,13 @@ void GlViewWidget::updateSparks()
 {
     QList<Capsule> cl = mSkeleton->toCapsuleList(mSkeleton->mRoot);
 
+    // todo - make these into veins, with a stack. Then write a separate 2D outliner
+
     const double heat = PARAM("heat");
     const float gravity = PARAM("gravity");
     const float width = PARAM("thickness")*0.5f;
-    const float attraction = PARAM("attraction");
+    const float thicknessModulation = (PARAM("thicknessModulation"))*0.2f;
+    const float attraction = PARAM("attraction")*0.1;
     const int lifetime = PARAM("lifetime")*10;
     const float exposure = PARAM("exposure");
 
@@ -317,19 +328,22 @@ void GlViewWidget::updateSparks()
 
         QVector3D newPos = sp->pos();
 
-        newPos += QVector3D(RandFloatNeg()*heat, RandFloatNeg()*heat, RandFloatNeg()*heat);
-
+        newPos += QVector3D(RandFloatNeg()*heat, RandFloatNeg()*heat, RandFloatNeg()*heat * (mClampDepth ? 0:1));
 
         const Capsule * closest = 0;
         float minDist = 9999.0f;
         float lowest = 100;
         float highest = -100;
+        int idx =0;
+        int i=0;
         foreach (const Capsule & c, cl) {
             float dist = c.distanceFrom(newPos);
             if (dist < minDist) {
                 minDist = dist;
                 closest = &c;
+                idx = i;
             }
+            i++;
 
             if (c.mStart.y() < lowest)
             {
@@ -343,52 +357,73 @@ void GlViewWidget::updateSparks()
         }
 
         const Capsule * target = closest;
-        //Capsule * target = &cl[rand()%cl.size()];
 
-        QVector3D capsuleCentre = Maths::closestPointOnSegment(newPos, target->mStart, target->mEnd);
-
-        QVector3D normal = (capsuleCentre-newPos).normalized();
-
-
-        if (minDist > 0) {
-            newPos += normal * attraction;
-        }
-        else
+        if ((rand()&63) == 0)
         {
-            newPos += normal*-0.02f ;
-            newPos += (target->mEnd - target->mStart).normalized()*0.005;
+        target = &cl[rand()%cl.size()];
+}
+
+        QVector3D closestPoint;
+        float dist = target->distanceFrom(newPos, &closestPoint);
+
+        if (mClampDepth) {
+            closestPoint.setZ(0);
+            newPos.setZ(0);
         }
+
+
+
+        QVector3D normal = target->normal(newPos);
+
+        if (!closest->mIsSphere)
+        {
+        newPos -= normal * 0.0005;
+        }
+        newPos += (target->mEnd-closest->mStart).normalized() * attraction;
+
+        //newPos = closestPoint;
 
         newPos += QVector3D(0, -gravity, 0);
 
 
-        if (newPos.y() < lowest-2.0) {
+        if (newPos.y() < lowest-1.0) {
             newPos.setX(newPos.x() + RandFloatNeg()*0.9);
-            newPos.setY(highest+1.8);
+            newPos.setY(highest+0.8);
             newPos.setZ(newPos.z() + RandFloatNeg()*0.9);
             sp->reset();
         }
 
 
-        if (newPos.y() > highest+2.0) {
+        if (newPos.y() > highest+1.0) {
             newPos.setX(newPos.x() + RandFloatNeg()*0.9);
-            newPos.setY(lowest-1.8);
+            newPos.setY(lowest-0.8);
             newPos.setZ(newPos.z() + RandFloatNeg()*0.9);
             sp->reset();
+        }
+
+        if (mClampDepth) {
+            newPos.setZ(0);
         }
 
         QVector3D colour = QVector3D(normal.x() * exposure,
                                      normal.y() * exposure,
                                      normal.z() * exposure) * (1.0f/255.0f);
 
-        sp->setWidth(width);
+        static float lfo = 0;
+        lfo += 0.05;
+        sp->setWidth(width + sin(lfo) * thicknessModulation);
         sp->update(newPos, colour);
     }
 }
 
 void GlViewWidget::save(const QString &filename)
 {
-        mSkeleton->save(filename);
+    mSkeleton->save(filename);
+}
+
+void GlViewWidget::clampDepth(bool clamp)
+{
+    mClampDepth = clamp;
 }
 
 void GlViewWidget::tick()

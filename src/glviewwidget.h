@@ -6,7 +6,9 @@
 
 #include <QGLWidget>
 #include <QList>
+#include <QVector3D>
 
+class Branch;
 
 /**
  * A viewport onto a 3D space
@@ -51,15 +53,19 @@ signals:
     
 public slots:
     void tick(void);
+    void clampDepth(bool clamp);
 
 private:
     double mAspectRatio;
     QVector3D screenToWorld(int x, int y, float * normalizedZ);
     QVector3D screenToWorldAlongPlane(int x, int y, float z);
 
+    Branch * mBloodVessels;
+
     Skeleton * mSkeleton;
     Skeleton::RenderMode mRenderMode;
     bool mSelectBoneEnds;
+    bool mClampDepth;
 
     QList<Ribbon*> mRibbons;
 };

@@ -8,15 +8,17 @@ class QMatrix4x4;
 class Capsule
 {
 public:
-    Capsule(const QVector3D & start, const QVector3D & end, float radius, bool isSphere, QMatrix4x4 & transform);
+    Capsule(const QVector3D & start, const QVector3D & end, float radius, bool isSphere, QMatrix4x4 & transform, QMatrix4x4 &invertedTransform);
 
-    float distanceFrom(const QVector3D & pt) const;
+    float distanceFrom(const QVector3D & pt, QVector3D *nearestPoint = 0) const;
+    QVector3D normal(const QVector3D &pt) const;
 
     QVector3D mStart;
     QVector3D mEnd;
     float mRadius;
 
     QMatrix4x4 * mTransform;
+    QMatrix4x4 * mInverseTransform;
 
     /** Bones become spheres if they are too fat, we want this behaviour
      * mirrored here. @todo unify bones/capsules - no need for bone to be qobject.*/

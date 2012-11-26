@@ -10,6 +10,7 @@
 class Bone;
 class QVector3D;
 class QDomDocument;
+class Branch;
 
 
 class Skeleton : public QObject
@@ -28,6 +29,8 @@ public:
     void resolve();
 
     QList<Capsule> toCapsuleList(Bone *root);
+
+    Branch * toBranchRoot(Bone * boneToFollow);
 
     void render(RenderMode r);
 

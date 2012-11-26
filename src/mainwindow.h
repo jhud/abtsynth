@@ -10,8 +10,6 @@ namespace Ui {
 class MainWindow;
 }
 
-class GlViewWidget;
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -40,6 +38,8 @@ private slots:
     void on_actionRender_triggered();
 
     void on_action_Save_as_triggered();
+
+    void on_actionClamp_Depth_triggered(bool checked);
 
 public:
     float param(const QString & name);

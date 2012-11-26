@@ -118,3 +118,8 @@ void MainWindow::on_action_Save_as_triggered()
         ui->glViewContainer->save(s);
     }
 }
+
+void MainWindow::on_actionClamp_Depth_triggered(bool checked)
+{
+    ui->glViewContainer->clampDepth(checked);
+}
