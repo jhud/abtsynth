@@ -30,7 +30,9 @@ public:
 
     QList<Capsule> toCapsuleList(Bone *root);
 
-    Branch * toBranchRoot(Bone * boneToFollow);
+    Branch * toBranchRoot(Bone * boneToFollow, const QList<Capsule> & bounds);
+
+    Bone * findBone(const QString & name);
 
     void render(RenderMode r);
 

@@ -54,7 +54,8 @@ signals:
 public slots:
     void tick(void);
     void clampDepth(bool clamp);
-
+private:
+    void rebuildBloodVessels();
 private:
     double mAspectRatio;
     QVector3D screenToWorld(int x, int y, float * normalizedZ);

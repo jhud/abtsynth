@@ -3,6 +3,8 @@
 
 #include <QMatrix4x4>
 
+class Capsule;
+
 class Branch
 {
 public:
@@ -10,6 +12,8 @@ public:
     virtual ~Branch();
 
     void addChild(Branch * branch);
+
+    void growRecursively(Branch * parent, int levels, const QList<Capsule> & bounds);
 
     void render() const;
 

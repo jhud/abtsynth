@@ -41,6 +41,7 @@ float pickedZ;
 GlViewWidget::GlViewWidget(QWidget *parent) :
     QGLWidget(parent)
   , mSelectBoneEnds(false)
+  , mBloodVessels(0)
 {
     qo = gluNewQuadric();
 
@@ -63,7 +64,7 @@ GlViewWidget::GlViewWidget(QWidget *parent) :
             addSpark();
         }
 
-        mBloodVessels = mSkeleton->toBranchRoot(mSkeleton->mRoot);
+        rebuildBloodVessels();
     }
 }
 
@@ -145,11 +146,11 @@ void GlViewWidget::paintGL()
         ribbon->draw();
     }
 
-    glColor3b(255,0,0);
+        glColor3f( 1.0f, 0.0f, 0.0f );
     glBegin(GL_LINES);
     mBloodVessels->render();
     glEnd();
-    glColor3b(255,255,255);
+        glColor3f( 1.0f, 1.0f, 1.0f );
 
     /*   glBegin(GL_TRIANGLES);
     foreach (Spark * spark, mSparks) {
@@ -210,6 +211,8 @@ void GlViewWidget::mouseMoveEvent(QMouseEvent * me)
             }
 
             mSkeleton->resolve();
+
+               rebuildBloodVessels();
             updateGL();
         }
     }
@@ -424,6 +427,13 @@ void GlViewWidget::save(const QString &filename)
 void GlViewWidget::clampDepth(bool clamp)
 {
     mClampDepth = clamp;
+}
+
+void GlViewWidget::rebuildBloodVessels()
+{
+    delete mBloodVessels;
+    QList<Capsule> cl = mSkeleton->toCapsuleList(mSkeleton->mRoot);
+    mBloodVessels = mSkeleton->toBranchRoot(mSkeleton->findBone("back"), cl);
 }
 
 void GlViewWidget::tick()

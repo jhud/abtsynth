@@ -29,6 +29,7 @@
 Bone::Bone(QObject *parent)
     : QObject(parent)
     , mLinkedToOtherBone(false)
+    , mParent(0)
 {
     mPos[0] = new QVector3D(RandFloat(), RandFloat(), RandFloat()); //@todo mem leak
     mPos[1] = new QVector3D(RandFloat(), RandFloat(), RandFloat());

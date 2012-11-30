@@ -77,25 +77,45 @@ QList<Capsule> Skeleton::toCapsuleList(Bone * root)
     return intervals;
 }
 
-Branch *Skeleton::toBranchRoot(Bone *boneToFollow)
+Branch *Skeleton::toBranchRoot(Bone *boneToFollow, const QList<Capsule> & bounds)
 {
-    const QVector3D up(0 ,1 ,0);
+    if (!boneToFollow->joinedTo().isEmpty()) {
+        // Don't allow loops
+        return 0;
+    }
 
-        float m[16];
-        Maths::multLookAt(m, boneToFollow->start(), boneToFollow->end(), up);
 
-        QMatrix4x4 xform(m[0], m[1], m[2], m[3],m[4], m[5],m[6], m[7],m[8], m[9],m[10], m[11],m[12], m[13], m[14], m[15]);
-        xform.translate(boneToFollow->start());
+  QMatrix4x4 xform;
+  xform.setToIdentity();
+  xform.translate(boneToFollow->start());
+
+  QVector3D fwd = (boneToFollow->end()-boneToFollow->start()).normalized();
+
+  xform.setColumn(0, QVector4D(fwd.y(), -fwd.z(), fwd.x(), 0));
+  xform.setColumn(1, QVector4D(fwd, 0));
+  xform.setColumn(2, QVector4D(fwd.x(), -fwd.x(), fwd.z(), 0));
 
     Branch * branch = new Branch(xform, boneToFollow->length());
 
     foreach (QObject * obj, boneToFollow->children()) {
         Bone * childBone = (Bone*)obj;
 
-        branch->addChild(toBranchRoot(childBone));
+        if (childBone->joinedTo().isEmpty()) {
+            branch->addChild(toBranchRoot(childBone, bounds));
+            branch->growRecursively(0, 3, bounds );
+        }
     }
 
     return branch;
+}
+
+Bone *Skeleton::findBone(const QString &name)
+{
+    if (mRoot == 0) {
+        return 0;
+    }
+
+    return findBone(mRoot, name);
 }
 
 void Skeleton::render(RenderMode r)
