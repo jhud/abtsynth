@@ -29,7 +29,6 @@
 Bone::Bone(QObject *parent)
     : QObject(parent)
     , mLinkedToOtherBone(false)
-    , mParent(0)
 {
     mPos[0] = new QVector3D(RandFloat(), RandFloat(), RandFloat()); //@todo mem leak
     mPos[1] = new QVector3D(RandFloat(), RandFloat(), RandFloat());
@@ -258,3 +257,10 @@ QString Bone::writeVector3D(const QVector3D &vec)
 
     return ret;
 }
+
+Bone *Bone::parentBone() const
+{
+    Bone * ret = dynamic_cast<Bone*>(parent());
+    return ret;
+}
+

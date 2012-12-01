@@ -431,9 +431,14 @@ void GlViewWidget::clampDepth(bool clamp)
 
 void GlViewWidget::rebuildBloodVessels()
 {
+    QHash<Bone*, bool> visited;
+
+    visited[mSkeleton->findBone("face")] = true;
+    visited[mSkeleton->findBone("rhip")] = true;
+
     delete mBloodVessels;
     QList<Capsule> cl = mSkeleton->toCapsuleList(mSkeleton->mRoot);
-    mBloodVessels = mSkeleton->toBranchRoot(mSkeleton->findBone("back"), cl);
+    mBloodVessels = mSkeleton->toBranchRoot(mSkeleton->findBone("back"), cl, visited, false);
 }
 
 void GlViewWidget::tick()

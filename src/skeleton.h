@@ -30,7 +30,7 @@ public:
 
     QList<Capsule> toCapsuleList(Bone *root);
 
-    Branch * toBranchRoot(Bone * boneToFollow, const QList<Capsule> & bounds);
+    Branch * toBranchRoot(Bone * boneToFollow, const QList<Capsule> & bounds, QHash<Bone *, bool> visited, bool reverse);
 
     Bone * findBone(const QString & name);
 

@@ -50,6 +50,8 @@ public:
 
     Capsule toCapsule();
 
+    Bone * parentBone() const;
+
 signals:
     
 public slots:
@@ -66,7 +68,6 @@ private:
     QString mName;
     QString mJoinedTo;
     bool mLinkedToOtherBone;
-    Bone * mParent;
 
     QVector3D * mPos[2];
 };

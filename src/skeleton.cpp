@@ -77,19 +77,27 @@ QList<Capsule> Skeleton::toCapsuleList(Bone * root)
     return intervals;
 }
 
-Branch *Skeleton::toBranchRoot(Bone *boneToFollow, const QList<Capsule> & bounds)
+Branch *Skeleton::toBranchRoot(Bone *boneToFollow, const QList<Capsule> & bounds, QHash<Bone *, bool> visited, bool reverse)
 {
+  visited[boneToFollow] = true;
+
     if (!boneToFollow->joinedTo().isEmpty()) {
         // Don't allow loops
         return 0;
     }
 
-
   QMatrix4x4 xform;
   xform.setToIdentity();
-  xform.translate(boneToFollow->start());
+  QVector3D fwd;
 
-  QVector3D fwd = (boneToFollow->end()-boneToFollow->start()).normalized();
+  if (reverse == false) {
+  xform.translate(boneToFollow->start());
+  fwd= (boneToFollow->end()-boneToFollow->start()).normalized();
+}
+  else {
+      xform.translate(boneToFollow->end());
+      fwd= (boneToFollow->start()-boneToFollow->end()).normalized();
+  }
 
   xform.setColumn(0, QVector4D(fwd.y(), -fwd.z(), fwd.x(), 0));
   xform.setColumn(1, QVector4D(fwd, 0));
@@ -97,13 +105,21 @@ Branch *Skeleton::toBranchRoot(Bone *boneToFollow, const QList<Capsule> & bounds
 
     Branch * branch = new Branch(xform, boneToFollow->length());
 
+    int depth = 4;
+
     foreach (QObject * obj, boneToFollow->children()) {
         Bone * childBone = (Bone*)obj;
 
-        if (childBone->joinedTo().isEmpty()) {
-            branch->addChild(toBranchRoot(childBone, bounds));
-            branch->growRecursively(0, 3, bounds );
+        if (!visited.contains(childBone)) {
+            branch->addChild(toBranchRoot(childBone, bounds, visited, false));
+            branch->growRecursively(0, depth, bounds );
         }
+    }
+
+    Bone * parent = boneToFollow->parentBone();
+    if (parent && !visited.contains(parent)) {
+            branch->addChild(toBranchRoot(parent, bounds, visited, true));
+            branch->growRecursively(0, depth, bounds );
     }
 
     return branch;
@@ -137,6 +153,7 @@ void Skeleton::render(RenderMode r)
         glEnd();
     }
 }
+
 
 bool Skeleton::load(const QString &filename)
 {
