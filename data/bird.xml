@@ -1,0 +1,47 @@
+<skeleton>
+ <bone thickness="1.5" endpos="-0.228176 1.07155 0.218654" length="0.20" startpos="-0.242411 1.27958 0.286803" name="head">
+  <bone thickness="1.0" endpos="-0.264857 1.11802 0.296748" length="0.11" startpos="-0.228176 1.07155 0.218654" name="jaw">
+   <bone thickness="1.2" endpos="-0.242411 1.27958 0.286803" length="0.15" startpos="-0.264857 1.11802 0.296748" join="head" name="face"/>
+  </bone>
+  <bone thickness="0.7" endpos="-0.240434 0.926115 0.230464" length="0.14" startpos="-0.228176 1.07155 0.218654" name="neck">
+   <bone thickness="0.15" endpos="-0.556251 0.919668 0.227414" length="0.6" startpos="-0.240434 0.926115 0.230464" name="leftArm" scalex="4">
+    <bone thickness="0.15" endpos="-0.580035 0.656907 0.329779" length="0.5" startpos="-0.556251 0.919668 0.227414" name="leftForearm" scalex="4">
+     <bone thickness="0.15" endpos="-0.470993 0.59357 0.319261" length="0.20" startpos="-0.580035 0.656907 0.329779" name="leftHand" scalex="4">
+     </bone>
+    </bone>
+   </bone>
+   <bone thickness="0.15" endpos="0.0967928 0.923255 0.220501" length="0.6" startpos="-0.240434 0.926115 0.230464" name="rightArm" scalex="4">
+    <bone thickness="0.15" endpos="0.33101 0.826064 0.162777" length="0.5" startpos="0.0967928 0.923255 0.220501" name="rightForearm" scalex="4">
+     <bone thickness="0.15" endpos="0.397559 0.756477 0.135605" length="0.20" startpos="0.33101 0.826064 0.162777" name="rightHand" scalex="4">
+     </bone>
+    </bone>
+   </bone>
+   <bone thickness="0.65" endpos="-0.238269 0.675832 0.284621" length="0.25" startpos="-0.240434 0.926115 0.230464" name="back" scalex="2.0">
+    <bone thickness="0.45" endpos="-0.214439 0.428329 0.34576" length="0.25" startpos="-0.238269 0.675832 0.284621" name="lowerback">
+     <bone thickness="0.5" endpos="-0.163145 0.256834 0.396386" length="0.18" startpos="-0.214439 0.428329 0.34576" name="lhip">
+     <bone thickness="0.3" endpos="-0.234301 -0.119741 0.354943" length="0.9" startpos="-0.62093 -0.0492352 0.397366" name="leftTail"/>
+      <bone thickness="0.4" endpos="-0.147043 -0.154045 0.326512" length="0.21" startpos="-0.163145 0.256834 0.396386" name="leftThigh">
+       <bone thickness="0.3" endpos="-0.202798 -0.469334 0.615176" length="0.21" startpos="-0.147043 -0.154045 0.326512" name="leftShin">
+        <bone thickness="0.5" endpos="-0.199305 -0.621553 0.505267" length="0.07" startpos="-0.202798 -0.469334 0.615176" name="leftFoot">
+         <bone thickness="0.5" endpos="-0.185349 -0.650139 0.527218" length="0.04" startpos="-0.199305 -0.621553 0.505267" name="leftBigToe"/>
+        </bone>
+       </bone>
+      </bone>
+      <bone thickness="0.5" endpos="-0.382019 0.299258 0.339638" length="0.26" startpos="-0.163145 0.256834 0.396386" name="hip">
+<bone thickness="0.3" endpos="-0.234301 -0.119741 0.354943" length="0.9" startpos="-0.62093 -0.0492352 0.397366" name="midTail"/>
+<bone thickness="0.4" endpos="-0.62093 -0.0492352 0.397366" length="0.21" startpos="-0.382019 0.299258 0.339638" name="rightThigh">
+        <bone thickness="0.3" endpos="-0.234301 -0.119741 0.354943" length="0.21" startpos="-0.62093 -0.0492352 0.397366" name="rightShin">
+         <bone thickness="0.5" endpos="-0.335239 -0.226883 0.334542" length="0.07" startpos="-0.234301 -0.119741 0.354943" name="rightFoot">
+          <bone thickness="0.5" endpos="-0.373352 -0.283471 0.347571" length="0.04" startpos="-0.335239 -0.226883 0.334542" name="rightBigToe"/>
+         </bone>
+        </bone>
+       </bone>
+       <bone thickness="0.3" endpos="-0.234301 -0.119741 0.354943" length="0.9" startpos="-0.62093 -0.0492352 0.397366" name="rightTail"/>
+       <bone thickness="0.5" endpos="-0.214439 0.428329 0.34576" length="0.18" startpos="-0.382019 0.299258 0.339638" join="lhip" name="rhip"/>
+      </bone>
+     </bone>
+    </bone>
+   </bone>
+  </bone>
+ </bone>
+</skeleton>

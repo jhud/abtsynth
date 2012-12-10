@@ -23,6 +23,7 @@
 
 Ribbon::Ribbon(QObject *parent) :
     QObject(parent)
+  , mCurrentStep(0)
 {
     mRibbonWidth = 0.2;
 }
@@ -61,6 +62,9 @@ void Ribbon::draw()
 
 QVector3D Ribbon::pos()
 {
+    if (pts.count() == 0) {
+        return QVector3D(0, 0, 0);
+    }
     return pts.last();
 }
 

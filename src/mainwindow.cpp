@@ -123,3 +123,12 @@ void MainWindow::on_actionClamp_Depth_triggered(bool checked)
 {
     ui->glViewContainer->clampDepth(checked);
 }
+
+void MainWindow::on_action_Load_triggered()
+{
+    QString s = QFileDialog::getOpenFileName(this, "Load file", QString(), "Skeletons (*.xml)");
+
+    if (!s.isEmpty()) {
+        ui->glViewContainer->load(s);
+    }
+}

@@ -8,7 +8,7 @@ class Capsule;
 class Branch
 {
 public:
-    Branch(const QMatrix4x4 & orientation, float length);
+    Branch(const QMatrix4x4 & orientation, float length, float thickness);
     virtual ~Branch();
 
     void addChild(Branch * branch);
@@ -17,10 +17,15 @@ public:
 
     void render() const;
 
+    const QList<Branch*> & children() const;
+
+    const QVector3D startPos() const;
+
 private:
     QList<Branch*> mChildren;
     QMatrix4x4 mMatrix;
     float mLength;
+    float mThickness;
 };
 
 #endif // BRANCH_H

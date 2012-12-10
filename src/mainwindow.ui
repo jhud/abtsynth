@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>978</width>
-    <height>586</height>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -345,6 +345,9 @@ alternate-background-color: rgb(255, 0, 0);</string>
    <property name="text">
     <string>&amp;Load...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
   </action>
   <action name="action_Save_as">
    <property name="text">
@@ -388,8 +391,8 @@ alternate-background-color: rgb(255, 0, 0);</string>
      <y>551</y>
     </hint>
     <hint type="destinationlabel">
-     <x>602</x>
-     <y>308</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
    </hints>
   </connection>

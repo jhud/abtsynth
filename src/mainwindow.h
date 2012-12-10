@@ -41,6 +41,8 @@ private slots:
 
     void on_actionClamp_Depth_triggered(bool checked);
 
+    void on_action_Load_triggered();
+
 public:
     float param(const QString & name);
 

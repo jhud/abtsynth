@@ -21,7 +21,8 @@ SOURCES += src/main.cpp\
     src/capsule.cpp \
     src/maths.cpp \
     src/ribbon.cpp \
-    src/branch.cpp
+    src/branch.cpp \
+    src/branchfollowingribbon.cpp
 
 HEADERS  += src/mainwindow.h \
     src/glviewwidget.h \
@@ -31,11 +32,13 @@ HEADERS  += src/mainwindow.h \
     src/common.h \
     src/maths.h \
     src/ribbon.h \
-    src/branch.h
+    src/branch.h \
+    src/branchfollowingribbon.h
 
 FORMS    += \
     src/mainwindow.ui
 
 OTHER_FILES += \
     data/guy.xml \
-    data/guyandgirl.xml
+    data/guyandgirl.xml \
+    data/bird.xml

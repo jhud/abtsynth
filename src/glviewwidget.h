@@ -2,13 +2,14 @@
 #define GLVIEWWIDGET_H
 
 #include "skeleton.h"
-#include "ribbon.h"
 
 #include <QGLWidget>
 #include <QList>
 #include <QVector3D>
 
 class Branch;
+class Ribbon;
+class BranchFollowingRibbon;
 
 /**
  * A viewport onto a 3D space
@@ -49,6 +50,8 @@ public:
 
     void save(const QString & filename);
 
+    void load(const QString & filename);
+
 signals:
     
 public slots:
@@ -68,7 +71,9 @@ private:
     bool mSelectBoneEnds;
     bool mClampDepth;
 
-    QList<Ribbon*> mRibbons;
+    QList<BranchFollowingRibbon*> mRibbons;
+
+    QList<Ribbon*> mOutliners;
 };
 
 #endif // GLVIEWWIDGET_H

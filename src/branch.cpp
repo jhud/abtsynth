@@ -2,9 +2,10 @@
 #include "capsule.h"
 #include "GL/gl.h"
 
-Branch::Branch(const QMatrix4x4 &orientation, float length)
+Branch::Branch(const QMatrix4x4 &orientation, float length, float thickness)
     : mMatrix(orientation)
     , mLength(length)
+    , mThickness(thickness)
 {
 }
 
@@ -24,18 +25,16 @@ void Branch::addChild(Branch * branch)
 
 void Branch::growRecursively(Branch *parent, int levels, const QList<Capsule> & bounds)
 {
-
-
     if (levels > 0) {
-        int numBranches = 3;
+        int numBranches = 5;
         for (int i=0; i<numBranches; i++) {
             qreal depthInsideSkin = 999;
             QMatrix4x4 m(mMatrix);
             m.translate(0,float(i)*mLength/(float(numBranches)),0);
             m.rotate(i*120, 0,1,0);
-            m.rotate(20, 1,0,0);
+            m.rotate(35*mThickness, 1,0,0);
 
-            qreal newLength = mLength*0.75;
+            qreal newLength = mLength*0.6;
 
             if (!bounds.isEmpty()) {
                 const QVector3D & pos = mMatrix.map(QVector3D(0,newLength,0));
@@ -49,16 +48,19 @@ void Branch::growRecursively(Branch *parent, int levels, const QList<Capsule> & 
                 }
 
             }
+
             if (depthInsideSkin > 0) {
                 newLength -= depthInsideSkin;
-                newLength *= 0.8;
-
+                newLength *= 0.5;
             }
-            Branch * newBranch = new Branch(m, newLength);
+
+            if (newLength > 0) {
+
+            Branch * newBranch = new Branch(m, newLength, mThickness);
             addChild(newBranch);
 
             newBranch->growRecursively(this, levels-1, bounds);
-
+}
 
         }
     }
@@ -77,4 +79,15 @@ void Branch::render() const
     const QVector3D & pos2 = mMatrix.map(QVector3D(0,mLength,0));
     glVertex3f(pos2.x(), pos2.y(), pos2.z());
 }
+
+const QList<Branch *> & Branch::children() const
+{
+    return mChildren;
+}
+
+const QVector3D Branch::startPos() const
+{
+    return mMatrix.map(QVector3D(0,0,0));
+}
+
 

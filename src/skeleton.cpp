@@ -79,33 +79,33 @@ QList<Capsule> Skeleton::toCapsuleList(Bone * root)
 
 Branch *Skeleton::toBranchRoot(Bone *boneToFollow, const QList<Capsule> & bounds, QHash<Bone *, bool> visited, bool reverse)
 {
-  visited[boneToFollow] = true;
+    visited[boneToFollow] = true;
 
     if (!boneToFollow->joinedTo().isEmpty()) {
         // Don't allow loops
         return 0;
     }
 
-  QMatrix4x4 xform;
-  xform.setToIdentity();
-  QVector3D fwd;
+    QMatrix4x4 xform;
+    xform.setToIdentity();
+    QVector3D fwd;
 
-  if (reverse == false) {
-  xform.translate(boneToFollow->start());
-  fwd= (boneToFollow->end()-boneToFollow->start()).normalized();
-}
-  else {
-      xform.translate(boneToFollow->end());
-      fwd= (boneToFollow->start()-boneToFollow->end()).normalized();
-  }
+    if (reverse == false) {
+        xform.translate(boneToFollow->start());
+        fwd= (boneToFollow->end()-boneToFollow->start()).normalized();
+    }
+    else {
+        xform.translate(boneToFollow->end());
+        fwd= (boneToFollow->start()-boneToFollow->end()).normalized();
+    }
 
-  xform.setColumn(0, QVector4D(fwd.y(), -fwd.z(), fwd.x(), 0));
-  xform.setColumn(1, QVector4D(fwd, 0));
-  xform.setColumn(2, QVector4D(fwd.x(), -fwd.x(), fwd.z(), 0));
+    xform.setColumn(0, QVector4D(fwd.y(), -fwd.z(), fwd.x(), 0));
+    xform.setColumn(1, QVector4D(fwd, 0));
+    xform.setColumn(2, QVector4D(fwd.x(), -fwd.x(), fwd.z(), 0));
 
-    Branch * branch = new Branch(xform, boneToFollow->length());
+    Branch * branch = new Branch(xform, boneToFollow->length(), boneToFollow->thicknessRatio());
 
-    int depth = 4;
+    int depth = 5;
 
     foreach (QObject * obj, boneToFollow->children()) {
         Bone * childBone = (Bone*)obj;
@@ -118,8 +118,8 @@ Branch *Skeleton::toBranchRoot(Bone *boneToFollow, const QList<Capsule> & bounds
 
     Bone * parent = boneToFollow->parentBone();
     if (parent && !visited.contains(parent)) {
-            branch->addChild(toBranchRoot(parent, bounds, visited, true));
-            branch->growRecursively(0, depth, bounds );
+        branch->addChild(toBranchRoot(parent, bounds, visited, true));
+        branch->growRecursively(0, depth, bounds );
     }
 
     return branch;
@@ -318,7 +318,7 @@ void Skeleton::renderBoneVolume(Bone *bone, GLUquadricObj * quadric)
         glPushMatrix();
         {
             glMultMatrixd(bone->transform());
-           // glTranslatef(bone->start().x(), bone->start().y(), bone->start().z());
+            // glTranslatef(bone->start().x(), bone->start().y(), bone->start().z());
             gluSphere(quadric, width,12,12);
         }
         glPopMatrix();

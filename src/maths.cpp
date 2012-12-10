@@ -45,8 +45,6 @@ qreal distanceToSegment(const QVector3D& pt, const QVector3D& from, const QVecto
     return (closestPointOnSegment(pt, from, to) - pt).length();
 }
 
-
-
 // from opengl.org
 /*
     multLookAt -- Create a matrix to make an object, such as
