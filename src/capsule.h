@@ -17,6 +17,8 @@ public:
 
     QVector3D normal(const QVector3D &pt) const;
 
+    QVector2D normal(const QVector2D &pt) const;
+
     QVector3D mStart;
     QVector3D mEnd;
     float mRadius;

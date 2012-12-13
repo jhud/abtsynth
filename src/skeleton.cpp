@@ -105,7 +105,7 @@ Branch *Skeleton::toBranchRoot(Bone *boneToFollow, const QList<Capsule> & bounds
 
     Branch * branch = new Branch(xform, boneToFollow->length(), boneToFollow->thicknessRatio());
 
-    int depth = 5;
+    int depth = 3;
 
     foreach (QObject * obj, boneToFollow->children()) {
         Bone * childBone = (Bone*)obj;

@@ -31,6 +31,7 @@
 #include <GL/glu.h>
 #include <qevent.h>
 #include <QMessageBox>
+#include <QVector2D>
 
 
 #define RandRangeFloat(x, y) (float(rand()%RAND_MAX)/RAND_MAX * ((y)-(x)) - ((x)*0.5f))
@@ -147,13 +148,13 @@ void GlViewWidget::paintGL()
         ribbon->draw();
     }
 
-    if (mRenderMode != Skeleton::RenderFinal) {
+ /*   if (mRenderMode != Skeleton::RenderFinal) {
       glColor3f( 1.0f, 0.0f, 0.0f );
     glBegin(GL_LINES);
     mBloodVessels->render();
     glEnd();
         glColor3f( 1.0f, 1.0f, 1.0f );
-    }
+    }*/
 
 
     /*   glBegin(GL_TRIANGLES);
@@ -334,7 +335,7 @@ void GlViewWidget::updateSparks()
     const int lifetime = PARAM("lifetime")*10;
     const float exposure = PARAM("exposure");
 
-    foreach (BranchFollowingRibbon* sp, mRibbons) {
+    foreach (Ribbon* sp, mOutliners) {
         const Capsule * closest = 0;
         float minDist = 9999.0f;
         float lowest = 100;
@@ -364,29 +365,43 @@ void GlViewWidget::updateSparks()
         const Capsule * target = closest;
 
 
-        QVector3D closestPoint;
-        float dist = target->distanceFrom(sp->pos(), &closestPoint);
+        QVector2D closestPoint;
+        float dist = target->distanceFrom(QVector2D(sp->pos().x(), sp->pos().y()), &closestPoint);
 
-        if (mClampDepth) {
-            closestPoint.setZ(0);
-        }
 
-        QVector3D normal = target->normal(sp->pos());
+        QVector2D normal = target->normal(closestPoint);
 
         QVector3D colour = QVector3D(normal.x() * exposure,
                                      normal.y() * exposure,
-                                     normal.z() * exposure) * (1.0f/255.0f);
+                                     100) * (1.0f/255.0f);
 
-        QVector3D newPoint = closestPoint;
-        newPoint.setX(newPoint.x() + RandFloatNeg()*0.05);
-        newPoint.setY(newPoint.y() + RandFloatNeg()*0.05);
-        newPoint.setZ(newPoint.z() + RandFloatNeg()*0.05);
+        QVector3D newPoint(closestPoint.x(), closestPoint.y(), 0.5);
+
+        newPoint.setX(sp->pos().x() + normal.y() * 0.05);
+        newPoint.setY(sp->pos().y() - normal.x() * 0.05);
+
+        if (dist > 0) {
+        newPoint.setX(newPoint.x() - normal.x()*attraction);
+        newPoint.setY(newPoint.y() - normal.y()*attraction);
+        }
+        else {
+            newPoint.setX(closestPoint.x() + normal.x()*0.05);
+            newPoint.setY(closestPoint.y() + normal.y()*0.05);
+        }
+
+        newPoint.setX(newPoint.x() + RandFloatNeg()*heat);
+        newPoint.setY(newPoint.y() + RandFloatNeg()*heat);
+        newPoint.setZ(newPoint.z() + RandFloatNeg()*heat);
 
         static float lfo = 0;
         lfo += 0.05;
         sp->setWidth(width + sin(lfo) * thicknessModulation);
 
         sp->update(newPoint, colour);
+
+        if (newPoint.y() > highest) {
+            sp->reset();
+        }
     }
 
     foreach (BranchFollowingRibbon* sp, mRibbons) {
@@ -454,7 +469,7 @@ void GlViewWidget::rebuildBloodVessels()
     mBloodVessels = mSkeleton->toBranchRoot(mSkeleton->findBone("back"), cl, visited, false);
 
     mRibbons.clear();
-    for (int i=0; i<100; i++) {
+    for (int i=0; i<20; i++) {
         addSpark();
     }
 }

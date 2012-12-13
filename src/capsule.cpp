@@ -100,3 +100,24 @@ float Capsule::distanceFrom(const QVector2D &pt2, QVector2D * nearestPoint2) con
     diff.setZ(0);
     return Maths::distanceToSegment(ptInObjSpace, QVector3D(0,0,0), diff) - mRadius;
 }
+
+
+QVector2D Capsule::normal(const QVector2D &pt2) const
+{
+    QVector3D pt(pt2.x(), pt2.y(), 0);
+    QVector3D start(mStart.x(), mStart.y(), 0);
+    QVector3D ptInObjSpace = mTransform->map(pt-mStart);
+    ptInObjSpace.setZ(0);
+
+    if (mIsSphere) {
+
+        QVector3D norm = (ptInObjSpace-start).normalized();
+        return QVector2D(norm.x(), norm.y());
+    }
+
+    QVector3D diff = mEnd-mStart;
+        QVector3D segmentPoint = Maths::closestPointOnSegment(ptInObjSpace, QVector3D(0,0,0), diff);
+        QVector3D normal = (ptInObjSpace-segmentPoint).normalized();
+
+        return QVector2D(normal.x(), normal.y());
+}
