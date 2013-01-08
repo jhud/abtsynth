@@ -22,7 +22,8 @@ SOURCES += src/main.cpp\
     src/maths.cpp \
     src/ribbon.cpp \
     src/branch.cpp \
-    src/branchfollowingribbon.cpp
+    src/branchfollowingribbon.cpp \
+    src/debugshapes.cpp
 
 HEADERS  += src/mainwindow.h \
     src/glviewwidget.h \
@@ -33,7 +34,8 @@ HEADERS  += src/mainwindow.h \
     src/maths.h \
     src/ribbon.h \
     src/branch.h \
-    src/branchfollowingribbon.h
+    src/branchfollowingribbon.h \
+    src/debugshapes.h
 
 FORMS    += \
     src/mainwindow.ui
@@ -41,4 +43,8 @@ FORMS    += \
 OTHER_FILES += \
     data/guy.xml \
     data/guyandgirl.xml \
-    data/bird.xml
+    data/bird.xml \
+    data/triangle.xml \
+    data/sphere.xml \
+    data/capsule.xml \
+    data/lozenge.xml

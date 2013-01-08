@@ -24,6 +24,7 @@
 #include "maths.h"
 #include "branch.h"
 #include "branchfollowingribbon.h"
+#include "debugshapes.h"
 
 #include <QDebug>
 #include <math.h>
@@ -39,14 +40,19 @@
 GLUquadricObj * qo;
 QVector3D pick;
 float pickedZ;
+static const float MAX_BOUNDS = 100.0f;
+static const float MIN_BOUNDS = -100.0f;
 
 GlViewWidget::GlViewWidget(QWidget *parent) :
     QGLWidget(parent)
   , mBloodVessels(0)
   , mSkeleton(0)
   , mSelectBoneEnds(false)
+  , mDebugShapes(0)
 {
     qo = gluNewQuadric();
+
+    mDebugShapes = new DebugShapes(this);
 
     setFocus();
 
@@ -179,6 +185,8 @@ void GlViewWidget::paintGL()
     }
     glEnd();*/
 
+    mDebugShapes->render();
+    mDebugShapes->clear();
 
     glEnable(GL_DEPTH_TEST);
 
@@ -338,12 +346,20 @@ void GlViewWidget::updateSparks()
     foreach (Ribbon* sp, mOutliners) {
         const Capsule * closest = 0;
         float minDist = 9999.0f;
-        float lowest = 100;
-        float highest = -100;
+        float lowest = MAX_BOUNDS;
+        float highest = MIN_BOUNDS;
+        double minZ = MAX_BOUNDS;
+        double maxZ = MIN_BOUNDS;
         int idx =0;
         int i=0;
+
+        QVector2D pos2d(sp->pos().x(), sp->pos().y());
+
         foreach (const Capsule & c, cl) {
-            float dist = c.distanceFrom(sp->pos());
+            minZ = qMin(minZ, qMin(c.mStart.z(), c.mEnd.z()));
+            maxZ = qMax(maxZ, qMax(c.mStart.z(), c.mEnd.z()));
+
+            float dist = c.distanceFrom(pos2d);
             if (dist < minDist) {
                 minDist = dist;
                 closest = &c;
@@ -362,31 +378,47 @@ void GlViewWidget::updateSparks()
             }
         }
 
-        const Capsule * target = closest;
+        Q_ASSERT(highest != MIN_BOUNDS);
+        Q_ASSERT(lowest != MAX_BOUNDS);
 
+        Q_ASSERT(maxZ != MIN_BOUNDS);
+        Q_ASSERT(minZ != MAX_BOUNDS);
+
+        const Capsule * target = closest;
+        const float midZ = (minZ + maxZ) * 0.5f;
 
         QVector2D closestPoint;
-        float dist = target->distanceFrom(QVector2D(sp->pos().x(), sp->pos().y()), &closestPoint);
-
+        float dist = target->distanceFrom(pos2d, &closestPoint);
 
         QVector2D normal = target->normal(closestPoint);
+        Q_ASSERT(qAbs(normal.lengthSquared() - 1.0f) < 0.05f);
 
-        QVector3D colour = QVector3D(normal.x() * exposure,
-                                     normal.y() * exposure,
-                                     100) * (1.0f/255.0f);
+        QVector3D colour = QVector3D(1 * exposure,
+                                     1 * exposure,
+                                     0) * (1.0f/255.0f);
 
-        QVector3D newPoint(closestPoint.x(), closestPoint.y(), 0.5);
-
-        newPoint.setX(sp->pos().x() + normal.y() * 0.05);
-        newPoint.setY(sp->pos().y() - normal.x() * 0.05);
+        QVector3D newPoint(sp->pos().x(), sp->pos().y(), midZ);
 
         if (dist > 0) {
-        newPoint.setX(newPoint.x() - normal.x()*attraction);
-        newPoint.setY(newPoint.y() - normal.y()*attraction);
+            newPoint.setX(newPoint.x() - normal.x()*attraction);
+            newPoint.setY(newPoint.y() - normal.y()*attraction);
         }
         else {
-            newPoint.setX(closestPoint.x() + normal.x()*0.05);
-            newPoint.setY(closestPoint.y() + normal.y()*0.05);
+            newPoint.setX(closestPoint.x() + normal.x()*0.01);
+            newPoint.setY(closestPoint.y() + normal.y()*0.01);
+
+        }
+
+static int rib = 0;
+rib++;
+        if (rib&1) {
+        newPoint.setX(newPoint.x() + normal.y() * 0.05);
+        newPoint.setY(newPoint.y() - normal.x() * 0.05);
+}
+        else
+        {
+            newPoint.setX(newPoint.x() - normal.y() * 0.05);
+            newPoint.setY(newPoint.y() + normal.x() * 0.05);
         }
 
         newPoint.setX(newPoint.x() + RandFloatNeg()*heat);
@@ -398,31 +430,17 @@ void GlViewWidget::updateSparks()
         sp->setWidth(width + sin(lfo) * thicknessModulation);
 
         sp->update(newPoint, colour);
-
-        if (newPoint.y() > highest) {
-            sp->reset();
-        }
     }
 
     foreach (BranchFollowingRibbon* sp, mRibbons) {
-        const Capsule * closest = 0;
-        float minDist = 9999.0f;
-        float lowest = 100;
-        float highest = -100;
-        int idx =0;
-        int i=0;
-
-
         //QVector3D normal = target->normal(sp->pos());
-        QVector3D normal = QVector3D(1,0.05,0.05);
+        QVector3D normal = QVector3D(0.025,0.9,0.9);
 
         QVector3D colour = QVector3D(normal.x() * exposure,
                                      normal.y() * exposure,
                                      normal.z() * exposure) * (1.0f/255.0f);
 
-        static float lfo = 0;
-        lfo += 0.05;
-        sp->setWidth(width + sin(lfo) * thicknessModulation);
+        sp->setWidth(width);
 
         if (sp->takeRandomChild(colour) == false) {
             sp->reset();

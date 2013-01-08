@@ -17,7 +17,9 @@ bool BranchFollowingRibbon::takeRandomChild(const QVector3D & colour)
 
     mCurrentBranch = mCurrentBranch->children()[ rand() % mCurrentBranch->children().count()];
 
-    update(mCurrentBranch->startPos(), colour);
+    if (mCurrentBranch != 0) {
+        update(mCurrentBranch->startPos(), colour);
+    }
 
     return true;
 }
@@ -25,6 +27,11 @@ bool BranchFollowingRibbon::takeRandomChild(const QVector3D & colour)
 void BranchFollowingRibbon::reset()
 {
     Ribbon::reset();
+
+    if (mOriginalRoot == 0) {
+        return;
+    }
+
     mCurrentBranch = mOriginalRoot;
     update(mCurrentBranch->startPos(), QVector3D(0,0,0));
 }

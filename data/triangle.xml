@@ -1,16 +1,9 @@
 <skeleton>
-  <bone length="0.5" name="head">
-    <bone length="0.5" name="back">
-      <bone length="1.0" name="lhip">
-        <bone length="1.0" name="legl">          
-        </bone>
-        <bone length="1.0" name="rhip">
-          <bone length="1.0" name="legr">          
-          </bone>
-          <bone length="1.0" name="3" join="back">
-          </bone>  
+    <bone length="1.0" startpos="0.228176 1.07155 0.218654" name="back">
+      <bone length="1.0" name="lhip">          
+        <bone length="1.0" name="3" join="back">
         </bone>
       </bone>
-    </bone>
+
   </bone>
 </skeleton>

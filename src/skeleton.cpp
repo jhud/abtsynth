@@ -81,7 +81,7 @@ Branch *Skeleton::toBranchRoot(Bone *boneToFollow, const QList<Capsule> & bounds
 {
     visited[boneToFollow] = true;
 
-    if (!boneToFollow->joinedTo().isEmpty()) {
+    if (!boneToFollow || !boneToFollow->joinedTo().isEmpty()) {
         // Don't allow loops
         return 0;
     }
@@ -93,11 +93,25 @@ Branch *Skeleton::toBranchRoot(Bone *boneToFollow, const QList<Capsule> & bounds
     if (reverse == false) {
         xform.translate(boneToFollow->start());
         fwd= (boneToFollow->end()-boneToFollow->start()).normalized();
+
+        if (boneToFollow->name() == "back")
+        {
+            // hack to put heart on the left
+            xform.translate(0.05,0,0);
+        }
+
     }
     else {
         xform.translate(boneToFollow->end());
         fwd= (boneToFollow->start()-boneToFollow->end()).normalized();
+
+        if (boneToFollow->name() == "neck")
+        {
+            // hack to put heart on the left
+            xform.translate(0.05,0,0);
+        }
     }
+
 
     xform.setColumn(0, QVector4D(fwd.y(), -fwd.z(), fwd.x(), 0));
     xform.setColumn(1, QVector4D(fwd, 0));
@@ -105,7 +119,7 @@ Branch *Skeleton::toBranchRoot(Bone *boneToFollow, const QList<Capsule> & bounds
 
     Branch * branch = new Branch(xform, boneToFollow->length(), boneToFollow->thicknessRatio());
 
-    int depth = 3;
+    int depth = 5;
 
     foreach (QObject * obj, boneToFollow->children()) {
         Bone * childBone = (Bone*)obj;

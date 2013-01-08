@@ -10,6 +10,7 @@
 class Branch;
 class Ribbon;
 class BranchFollowingRibbon;
+class DebugShapes;
 
 /**
  * A viewport onto a 3D space
@@ -74,6 +75,8 @@ private:
     QList<BranchFollowingRibbon*> mRibbons;
 
     QList<Ribbon*> mOutliners;
+
+    DebugShapes * mDebugShapes;
 };
 
 #endif // GLVIEWWIDGET_H
