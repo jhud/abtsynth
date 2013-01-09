@@ -48,11 +48,16 @@ GlViewWidget::GlViewWidget(QWidget *parent) :
   , mBloodVessels(0)
   , mSkeleton(0)
   , mSelectBoneEnds(false)
+  , mPendingBloodVesselRebuild(0)
   , mDebugShapes(0)
 {
     qo = gluNewQuadric();
 
     mDebugShapes = new DebugShapes(this);
+    mPendingBloodVesselRebuild = new QTimer(this);
+    mPendingBloodVesselRebuild->setInterval(1000);
+    mPendingBloodVesselRebuild->setSingleShot(true);
+    connect(mPendingBloodVesselRebuild, SIGNAL(timeout()), this, SLOT(rebuildBloodVesselsNow()));
 
     setFocus();
 
@@ -309,9 +314,10 @@ void GlViewWidget::setRenderMode(Skeleton::RenderMode rm)
     mRenderMode = rm;
 
     if (mRenderMode == Skeleton::RenderFinal) {
-        glClearColor(0,0,0,1);
+        glClearColor(1,1,1,1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glBlendFunc(GL_ONE, GL_ONE);
+        glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
         glEnable(GL_BLEND);
     }
     else {
@@ -395,7 +401,7 @@ void GlViewWidget::updateSparks()
 
         QVector3D colour = QVector3D(1 * exposure,
                                      1 * exposure,
-                                     0) * (1.0f/255.0f);
+                                     1) * (1.0f/255.0f);
 
         QVector3D newPoint(sp->pos().x(), sp->pos().y(), midZ);
 
@@ -434,13 +440,13 @@ rib++;
 
     foreach (BranchFollowingRibbon* sp, mRibbons) {
         //QVector3D normal = target->normal(sp->pos());
-        QVector3D normal = QVector3D(0.025,0.9,0.9);
+        QVector3D normal = QVector3D(0.025,0.9, 0.9);
 
         QVector3D colour = QVector3D(normal.x() * exposure,
                                      normal.y() * exposure,
                                      normal.z() * exposure) * (1.0f/255.0f);
 
-        sp->setWidth(width);
+        sp->setWidth(0.01f);
 
         if (sp->takeRandomChild(colour) == false) {
             sp->reset();
@@ -475,7 +481,7 @@ void GlViewWidget::clampDepth(bool clamp)
     mClampDepth = clamp;
 }
 
-void GlViewWidget::rebuildBloodVessels()
+void GlViewWidget::rebuildBloodVesselsNow()
 {
     QHash<Bone*, bool> visited;
 
@@ -490,6 +496,11 @@ void GlViewWidget::rebuildBloodVessels()
     for (int i=0; i<20; i++) {
         addSpark();
     }
+}
+
+void GlViewWidget::rebuildBloodVessels()
+{
+    mPendingBloodVesselRebuild->start();
 }
 
 void GlViewWidget::tick()

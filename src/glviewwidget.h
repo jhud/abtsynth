@@ -7,6 +7,7 @@
 #include <QList>
 #include <QVector3D>
 
+class QTimer;
 class Branch;
 class Ribbon;
 class BranchFollowingRibbon;
@@ -58,6 +59,7 @@ signals:
 public slots:
     void tick(void);
     void clampDepth(bool clamp);
+    void rebuildBloodVesselsNow();
 private:
     void rebuildBloodVessels();
 private:
@@ -71,6 +73,7 @@ private:
     Skeleton::RenderMode mRenderMode;
     bool mSelectBoneEnds;
     bool mClampDepth;
+    QTimer * mPendingBloodVesselRebuild;
 
     QList<BranchFollowingRibbon*> mRibbons;
 
