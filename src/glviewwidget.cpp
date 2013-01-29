@@ -118,11 +118,14 @@ void GlViewWidget::paintGL()
     glErrorCheck();
 
     if (mRenderMode != Skeleton::RenderFinal) {
+
+#ifdef Q_WS_MAC
         GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
         if (status != GL_FRAMEBUFFER_COMPLETE) {
             qDebug() << __PRETTY_FUNCTION__ << "Framebuffer in wrong state: " << QString::number(status, 16);
         }
+#endif
 
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glColor3f( 1.0f, 1.0f, 1.0f );
