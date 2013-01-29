@@ -29,7 +29,11 @@
 #include <QDebug>
 #include <math.h>
 #include <QTimer>
+#ifndef Q_WS_MAC
 #include <GL/glu.h>
+#else
+#include <OpenGL/glu.h>
+#endif
 #include <qevent.h>
 #include <QMessageBox>
 #include <QVector2D>
@@ -81,6 +85,8 @@ void GlViewWidget::initializeGL()
     glClearColor( 0.0f, 0.0f, 0.5f, 1.0f );
     glEnable(GL_DEPTH_TEST);
     glPointSize(0.5f);
+
+    glErrorCheck();
 }
 
 void GlViewWidget::resizeGL( int w, int h )
@@ -109,9 +115,18 @@ void GlViewWidget::resizeGL( int w, int h )
 
 void GlViewWidget::paintGL()
 {
+    glErrorCheck();
+
     if (mRenderMode != Skeleton::RenderFinal) {
+        GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+        if (status != GL_FRAMEBUFFER_COMPLETE) {
+            qDebug() << __PRETTY_FUNCTION__ << "Framebuffer in wrong state: " << QString::number(status, 16);
+        }
+
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glColor3f( 1.0f, 1.0f, 1.0f );
+        glErrorCheck();
     }
 
     if (!mSkeleton) {
@@ -205,6 +220,9 @@ void GlViewWidget::paintGL()
     }
     glEnd();
     glEnable(GL_DEPTH_TEST);*/
+
+    glErrorCheck();
+
 
 }
 
@@ -326,6 +344,8 @@ void GlViewWidget::setRenderMode(Skeleton::RenderMode rm)
     }
 
     updateGL();
+
+    glErrorCheck();
 }
 
 void GlViewWidget::addSpark()
@@ -340,6 +360,10 @@ void GlViewWidget::addSpark()
 void GlViewWidget::updateSparks()
 {
     QList<Capsule> cl = mSkeleton->toCapsuleList(mSkeleton->mRoot);
+
+    if (cl.length() == 0) {
+        return;
+    }
 
     const double heat = PARAM("heat");
     const float gravity = PARAM("gravity");
@@ -501,6 +525,14 @@ void GlViewWidget::rebuildBloodVesselsNow()
 void GlViewWidget::rebuildBloodVessels()
 {
     mPendingBloodVesselRebuild->start();
+}
+
+void GlViewWidget::glErrorCheck()
+{
+    GLenum err = glGetError();
+    if ( err != 0) {
+        qDebug() << "OpenGL error:" << QString((char*)gluErrorString(err));
+    }
 }
 
 void GlViewWidget::tick()

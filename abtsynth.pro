@@ -9,6 +9,10 @@ QT       += core gui opengl xml
 TARGET = abtsynth
 TEMPLATE = app
 
+mac {
+    LIBS += -L/opt/X11/lib/
+}
+
 LIBS += -lGLU
 
 INCLUDEPATH += src

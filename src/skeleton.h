@@ -3,7 +3,12 @@
 
 #include <QObject>
 #include <QList>
+
+#ifndef Q_WS_MAC
 #include <GL/glu.h>
+#else
+#include <OpenGL/glu.h>
+#endif
 
 #include "capsule.h"
 

@@ -62,6 +62,11 @@ public slots:
     void rebuildBloodVesselsNow();
 private:
     void rebuildBloodVessels();
+
+    /**
+     * @brief glErrorCheck Check and log openGL errors.
+     */
+    void glErrorCheck();
 private:
     double mAspectRatio;
     QVector3D screenToWorld(int x, int y, float * normalizedZ);

@@ -18,8 +18,12 @@
 
 #include "ribbon.h"
 #include <math.h>
-#include <GL/gl.h>
 
+#ifndef Q_WS_MAC
+#include <GL/gl.h>
+#else
+#include <OpenGL/gl.h>
+#endif
 
 Ribbon::Ribbon(QObject *parent) :
     QObject(parent)

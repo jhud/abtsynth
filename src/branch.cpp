@@ -1,6 +1,12 @@
 #include "branch.h"
 #include "capsule.h"
-#include "GL/gl.h"
+#ifndef Q_WS_MAC
+#include <GL/gl.h>
+#include <GL/glu.h>
+#else
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#endif
 
 Branch::Branch(const QMatrix4x4 &orientation, float length, float thickness)
     : mMatrix(orientation)

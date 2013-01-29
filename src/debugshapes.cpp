@@ -1,7 +1,10 @@
 #include "debugshapes.h"
 
+#ifndef Q_WS_MAC
 #include <GL/gl.h>
-
+#else
+#include <OpenGL/gl.h>
+#endif
 DebugShapes::DebugShapes(QObject *parent) :
     QObject(parent)
 {
