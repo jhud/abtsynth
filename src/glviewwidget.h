@@ -26,7 +26,7 @@ public:
         CameraAbove
     };
 
-    explicit GlViewWidget(QWidget *parent = 0);
+    explicit GlViewWidget(QWidget *parent = 0, QGLWidget *shareWidget = 0);
     
     void initializeGL();
 

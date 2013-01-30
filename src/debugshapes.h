@@ -18,6 +18,8 @@ public:
 
     void clear();
 
+    int numShown();
+
 signals:
     
 public slots:

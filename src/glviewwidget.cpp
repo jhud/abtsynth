@@ -29,15 +29,15 @@
 #include <QDebug>
 #include <math.h>
 #include <QTimer>
-#ifndef Q_WS_MAC
-#include <GL/glu.h>
-#else
-#include <OpenGL/glu.h>
-#endif
 #include <qevent.h>
 #include <QMessageBox>
 #include <QVector2D>
 
+#ifndef Q_OS_MAC
+#include <GL/glu.h>
+#else
+#include <OpenGL/glu.h>
+#endif
 
 #define RandRangeFloat(x, y) (float(rand()%RAND_MAX)/RAND_MAX * ((y)-(x)) - ((x)*0.5f))
 
@@ -47,13 +47,18 @@ float pickedZ;
 static const float MAX_BOUNDS = 100.0f;
 static const float MIN_BOUNDS = -100.0f;
 
-GlViewWidget::GlViewWidget(QWidget *parent) :
-    QGLWidget(parent)
+GlViewWidget::GlViewWidget(QWidget *parent, QGLWidget *shareWidget) :
+    QGLWidget(parent, shareWidget)
   , mBloodVessels(0)
   , mSkeleton(0)
   , mSelectBoneEnds(false)
   , mPendingBloodVesselRebuild(0)
   , mDebugShapes(0)
+{
+    setFocus(); // Stops "parent must be in parent hierarchy" assertion on mac
+}
+
+void GlViewWidget::initializeGL()
 {
     qo = gluNewQuadric();
 
@@ -62,8 +67,6 @@ GlViewWidget::GlViewWidget(QWidget *parent) :
     mPendingBloodVesselRebuild->setInterval(1000);
     mPendingBloodVesselRebuild->setSingleShot(true);
     connect(mPendingBloodVesselRebuild, SIGNAL(timeout()), this, SLOT(rebuildBloodVesselsNow()));
-
-    setFocus();
 
     load("../abtsynth/data/guy.xml");
 
@@ -78,39 +81,33 @@ GlViewWidget::GlViewWidget(QWidget *parent) :
             Ribbon * r = new Ribbon(this);
             mOutliners.append(r);
         }
-}
 
-void GlViewWidget::initializeGL()
-{
-    glClearColor( 0.0f, 0.0f, 0.5f, 1.0f );
+        glClearColor( 0.0f, 0.0f, 0.5f, 1.0f );
     glEnable(GL_DEPTH_TEST);
     glPointSize(0.5f);
 
     glErrorCheck();
 }
 
-void GlViewWidget::resizeGL( int w, int h )
+
+void GlViewWidget::resizeGL(int width, int height)
 {
-    qDebug() << "Viewport resized to " << w << "x" << h;
-    if ( h == 0 )
-        h = 1;
+    glViewport(0, 0, width, height);
 
-    // Set the viewport to window dimensions
-    glViewport( 0, 0, w, h );
-
-    // reset the coordinate system
-    glMatrixMode( GL_PROJECTION );
+    glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    mAspectRatio = double( w ) / double( h );
+    mAspectRatio = double( width ) / double( height );
 
-    gluPerspective(90.0, mAspectRatio, 0.5, 100);
+    float ymax, xmax;
+    float znear = 0.1f;
+    float zfar = 100.0f;
+    ymax = znear * tanf(35.0 * M_PI / 360.0);
+    xmax = ymax * mAspectRatio;
+    glFrustum(-xmax, xmax, -ymax, ymax, znear, zfar);
 
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
-    glTranslated(0,0,-2);
-
-    updateGL();
+    glMatrixMode(GL_MODELVIEW);
+        glTranslatef(0,0,-5);
 }
 
 void GlViewWidget::paintGL()
@@ -119,7 +116,7 @@ void GlViewWidget::paintGL()
 
     if (mRenderMode != Skeleton::RenderFinal) {
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
         if (status != GL_FRAMEBUFFER_COMPLETE) {
@@ -132,7 +129,10 @@ void GlViewWidget::paintGL()
         glErrorCheck();
     }
 
+
+
     if (!mSkeleton) {
+        renderText(20,20, tr("No skeleton found!"));
         return;
     }
 
@@ -212,8 +212,6 @@ void GlViewWidget::paintGL()
     mDebugShapes->clear();
 
     glEnable(GL_DEPTH_TEST);
-
-
 
 /*    glDisable(GL_DEPTH_TEST);
     glColor3ub(1, 1, 1 );
@@ -389,8 +387,8 @@ void GlViewWidget::updateSparks()
         QVector2D pos2d(sp->pos().x(), sp->pos().y());
 
         foreach (const Capsule & c, cl) {
-            minZ = qMin(minZ, qMin(c.mStart.z(), c.mEnd.z()));
-            maxZ = qMax(maxZ, qMax(c.mStart.z(), c.mEnd.z()));
+            minZ = qMin(minZ, double(qMin(c.mStart.z(), c.mEnd.z())));
+            maxZ = qMax(maxZ, double(qMax(c.mStart.z(), c.mEnd.z())));
 
             float dist = c.distanceFrom(pos2d);
             if (dist < minDist) {
@@ -547,6 +545,8 @@ void GlViewWidget::tick()
     //    mSkeleton->separate(mSkeleton->mRoot, &bl);
 
     //    mSkeleton->resolve();
+
+    mDebugShapes->add(Maths::randomUnitVector3D(), Maths::randomUnitVector3D());
 
     updateGL();
 }

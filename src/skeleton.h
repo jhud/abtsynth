@@ -4,10 +4,12 @@
 #include <QObject>
 #include <QList>
 
-#ifndef Q_WS_MAC
+#if 0
+#ifndef Q_OS_MAC
 #include <GL/glu.h>
 #else
 #include <OpenGL/glu.h>
+#endif
 #endif
 
 #include "capsule.h"
@@ -16,6 +18,8 @@ class Bone;
 class QVector3D;
 class QDomDocument;
 class Branch;
+class GLUquadric;
+typedef class GLUquadric GLUquadricObj;
 
 
 class Skeleton : public QObject

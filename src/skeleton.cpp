@@ -22,11 +22,11 @@
 #include "branch.h"
 
 #include <QMatrix4x4>
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
 #include <GL/gl.h>
 #include <GL/glu.h>
 #else
-#include <OpenGL/glu.h>
+#include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #endif
 #include <QDebug>

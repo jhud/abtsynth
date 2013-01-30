@@ -1,6 +1,8 @@
 #include "debugshapes.h"
 
-#ifndef Q_WS_MAC
+#include <QDebug>
+
+#ifndef Q_OS_MAC
 #include <GL/gl.h>
 #else
 #include <OpenGL/gl.h>
@@ -32,4 +34,9 @@ void DebugShapes::render() const
 void DebugShapes::clear()
 {
     mLines.clear();
+}
+
+int DebugShapes::numShown()
+{
+    return mLines.count();
 }

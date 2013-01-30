@@ -1,6 +1,6 @@
 #include "branch.h"
 #include "capsule.h"
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
 #include <GL/gl.h>
 #include <GL/glu.h>
 #else

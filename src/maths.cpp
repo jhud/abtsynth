@@ -125,5 +125,16 @@ void multLookAt (float m[],
     m[15] = 1.f;
 }
 
+
+float randomUnit()
+{
+    return (float)(qrand()%100000)/100000.0f;
+}
+
+QVector3D randomUnitVector3D()
+{
+    return QVector3D(randomUnit(), randomUnit(), randomUnit());
+}
+
 // End of namespace
 }

@@ -19,7 +19,7 @@
 #include "ribbon.h"
 #include <math.h>
 
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
 #include <GL/gl.h>
 #else
 #include <OpenGL/gl.h>
