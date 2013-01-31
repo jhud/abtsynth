@@ -45,9 +45,9 @@ void Bone::setLength(double length)
     mLength = length;
 }
 
-double *Bone::transform()
+float *Bone::transform()
 {
-    return (double*)mTransform->data();
+    return static_cast<float*>(mTransform->data());
 }
 
     const QMatrix4x4 & Bone::transformMatrix()

@@ -319,7 +319,7 @@ void Skeleton::renderBoneVolume(Bone *bone, GLUquadricObj * quadric)
         if (bone->thicknessRatio() < 1.0f) {
             glPushMatrix();
             {
-                glMultMatrixd(bone->transform());
+                glMultMatrixf(bone->transform());
                 gluCylinder(quadric, width, width, bone->length(), 18, 1);
             }
             glPopMatrix();
@@ -327,7 +327,7 @@ void Skeleton::renderBoneVolume(Bone *bone, GLUquadricObj * quadric)
 
             glPushMatrix();
             {
-                glMultMatrixd(bone->transform());
+                glMultMatrixf(bone->transform());
                 glTranslatef(0, 0, bone->length());
                 gluSphere(quadric, width,12,12);
             }
@@ -336,8 +336,7 @@ void Skeleton::renderBoneVolume(Bone *bone, GLUquadricObj * quadric)
 
         glPushMatrix();
         {
-            glMultMatrixd(bone->transform());
-            // glTranslatef(bone->start().x(), bone->start().y(), bone->start().z());
+            glMultMatrixf(bone->transform());
             gluSphere(quadric, width,12,12);
         }
         glPopMatrix();

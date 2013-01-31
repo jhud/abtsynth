@@ -107,7 +107,7 @@ void GlViewWidget::resizeGL(int width, int height)
     glFrustum(-xmax, xmax, -ymax, ymax, znear, zfar);
 
     glMatrixMode(GL_MODELVIEW);
-        glTranslatef(0,0,-5);
+    glTranslatef(0,0,-2);
 }
 
 void GlViewWidget::paintGL()
@@ -223,8 +223,6 @@ void GlViewWidget::paintGL()
     glEnable(GL_DEPTH_TEST);*/
 
     glErrorCheck();
-
-
 }
 
 void GlViewWidget::mouseMoveEvent(QMouseEvent * me)
@@ -338,6 +336,11 @@ void GlViewWidget::setRenderMode(Skeleton::RenderMode rm)
         glBlendFunc(GL_ONE, GL_ONE);
         glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
         glEnable(GL_BLEND);
+
+#ifdef Q_OS_MAC
+        glSwapAPPLE();  // Stop flashing bg from double buffer
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#endif
     }
     else {
         glClearColor(0,0,0.5,1);
@@ -545,8 +548,6 @@ void GlViewWidget::tick()
     //    mSkeleton->separate(mSkeleton->mRoot, &bl);
 
     //    mSkeleton->resolve();
-
-    mDebugShapes->add(Maths::randomUnitVector3D(), Maths::randomUnitVector3D());
 
     updateGL();
 }
