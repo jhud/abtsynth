@@ -12,8 +12,9 @@ TEMPLATE = app
 mac {
     LIBS += -L/opt/X11/lib/
 }
-
-LIBS += -lGLU
+else {
+    LIBS += -lGLU
+}
 
 INCLUDEPATH += src
 
