@@ -13,6 +13,8 @@ mac {
     LIBS += -L/opt/X11/lib/
 }
 
+LIBS += -lGLU
+
 INCLUDEPATH += src
 
 SOURCES += src/main.cpp\
