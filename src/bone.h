@@ -19,7 +19,7 @@ public:
     void setLength(double length);
     double length() { return mLength; }
 
-    double * transform();
+    float *transform();
     const QMatrix4x4 & transformMatrix();
 
     double thicknessRatio() { return mThicknessRatio; }
